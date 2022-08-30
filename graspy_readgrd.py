@@ -41,19 +41,44 @@ else:
 
 matrix=np.zeros(shape=(nx,ny,2),dtype=complex)
 for x in range(nx):
+
     for y in range(ny):
         line=f.readline().split()
         matrix[x,y,0]=complex(float(line[0]), float(line[1]))
         matrix[x,y,1]=complex(float(line[2]), float(line[3]))
-
+matrix4d = np.expand_dims(matrix, 3)
 ds = xr.Dataset(
     data_vars=dict(
-        Field=(["x","y","field_component"], matrix)
+        Field=(["xcor","ycor","fco","f"], matrix4d)
     ),
     coords=dict(
-        xcor=(["x"],np.linspace(xlims[0],xlims[1],nx)),
-        ycor=(["y"],np.linspace(ylims[0],ylims[1],ny)),
-        fco=(["field_component"],["x","y"])
+        xcor=(["xcor"],np.linspace(xlims[0],xlims[1],nx)),
+        ycor=(["ycor"],np.linspace(ylims[0],ylims[1],ny)),
+        fco=(["fco"],["co","cross"]),
+        f=(["f"],[50]),
     ),
     attrs=dict(description="What am I doing?"),
 )
+ds['fco'].attrs['first element'] = 'co'
+ds['fco'].attrs['second element'] = 'cross'
+
+ds2 = xr.Dataset(
+    data_vars=dict(
+        Field=(["xcor","ycor","fco","f"], matrix4d)
+    ),
+    coords=dict(
+        xcor=(["xcor"],np.linspace(xlims[0],xlims[1],nx)),
+        ycor=(["ycor"],np.linspace(ylims[0],ylims[1],ny)),
+        fco=(["fco"],["co","cross"]),
+        f=(["f"],[51]),
+    ),
+    attrs=dict(description="What am I doing?"),
+)
+ds['fco'].attrs['first element'] = 'co'
+ds['fco'].attrs['second element'] = 'cross'
+
+list_ds = [ds, ds2]
+
+#list_ds.append(ds2)
+
+xr.merge(list_ds)
