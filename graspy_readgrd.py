@@ -46,25 +46,28 @@ class gridfile:
             stpx=(xlims[1]-xlims[0])/(nx-1)
             stpy=(ylims[1]-ylims[0])/(ny-1)
 
-            matrix=np.zeros(shape=(nx,ny,4),dtype=float)
+            matrix=np.zeros(shape=(ny,nx,4),dtype=float)
 
             if klimit==1:
                 sys.exit("In .grd file KLIMIT = 1. Code not finished for this")
             else:
                 Is=1
                 Ie=nx
+            for y in range(ny):
                 for x in range(nx):
                     line=f_grid.readline().split()
-                    matrix[x,y,0]=float(line[0])
-                    matrix[x,y,1]=float(line[1])
-                    matrix[x,y,2]=float(line[2])
-                    matrix[x,y,3]=float(line[3])
+                    matrix[y,x,0]=float(line[0])
+                    matrix[y,x,1]=float(line[1])
+                    matrix[y,x,2]=float(line[2])
+                    matrix[y,x,3]=float(line[3])
+            matrix=matrix.transpose(1,0,2)
             matrix4d = np.expand_dims(matrix, 3)
             da = xr.DataArray(
                 data=matrix4d,
                 dims=["xcor","ycor","comp","band"],
+                name=fname,
                 coords=dict(
-                    xcor=(["xcor"],np.linspace(xlims[0],xlims[1],nx)),
+                    xcor=(["xcor"],np.linspace(xlims[0],xlims[1],nx)), #X and y should be swapped somehow?
                     ycor=(["ycor"],np.linspace(ylims[0],ylims[1],ny)),
                     comp=(["comp"],["re_x","i_x","re_y","i_y"]),
                     band=(["band"],[idx+1]),
@@ -89,7 +92,11 @@ class gridfile:
         power_grid=grid_array**2
         power_grid=power_grid.sum(dim="comp")
         power_grid.name="power"
-        max_dB=10*np.log10(power_grid.max())
+        max_dB=[]
+        for it in power_grid.band:
+            s=power_grid.sel(band=it).where(power_grid.sel(band=it)==power_grid.sel(band=it).max(dim=["xcor","ycor"]),drop=True).squeeze()
+            max_dB.append(10*np.log10(s))
+            #indexes.coords['xcor']
         if merge == 0:
             return power_grid, max_dB
         else:
@@ -98,18 +105,23 @@ class gridfile:
 
     def in_dB(self,grid_array: xr.DataArray,merge = 1) -> xr.DataArray:
         cmplx_array=grid_array.isel(comp=0)+grid_array.isel(comp=1)*1j
-        dB_array=20*np.log10(abs(cmplx_array/cmplx_array.max()))
-        dB_array.name=grid_array.comp.values
+        dB_array=20*np.log10(abs(cmplx_array/cmplx_array.max())) #Does this need to be done by co?
+        dB_array.name=grid_array.comp.values[0][-1:] #fix naming here
         if merge == 0:
-            return dB_array
+            return dB_array, cmplx_array
         else:
             xr.merge([self.data,dB_array]) 
 
-    def co_cross(self,grid_array=self.data) -> xr.DataArray:
-         
+    def co_cross(self,grid_array: xr.DataArray) -> xr.DataArray:
+         [pow, max]=self.power(grid_array, merge = 0)
 
     def save(self) -> None:
         self.data.to_netcdf(self.data.filename[:-4]+'.nc')
 
     
 # %%
+
+test=gridfile('asym_test.grd')
+bla,cmplx=test.in_dB(test.data.sel(comp=['re_y','i_y']),0)
+bla2,maxdB=test.power(test.data,0)
+bla2.sel(band=1).plot.contour(levels=[3400,3000,2000,1000,500,200,100,50,10,1])
