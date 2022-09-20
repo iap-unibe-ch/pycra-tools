@@ -68,7 +68,7 @@ class gridfile:
                 coords=dict(
                     xcor=(["xcor"],np.linspace(xlims[0],xlims[1],nx)), 
                     ycor=(["ycor"],np.linspace(ylims[0],ylims[1],ny)),
-                    comp=(["comp"],["re_x","i_x","re_y","i_y"]),
+                    comp=(["comp"],["E_re","E_i","H_re","H_i"]),
                     band=(["band"],[idx+1]),
                 ),
                 attrs=dict(
@@ -112,7 +112,21 @@ class gridfile:
             xr.merge([self.data,dB_array]) 
 
     def co_cross(self,grid_array: xr.DataArray) -> xr.DataArray:
-         [pow, max]=self.power(grid_array, merge = 0)
+        [pow, max_v]=self.power(grid_array, merge = 0)
+        cmplx_E=grid_array.isel(comp=0,band=0)+grid_array.isel(comp=1,band=0)*1j
+        cmplx_H=grid_array.isel(comp=2,band=0)+grid_array.isel(comp=3,band=0)*1j
+        it=0
+        x_max_val=cmplx_E.sel(xcor=max_v[it].coords['xcor'].values,ycor=max_v[it].coords['ycor'].values)
+        y_max_val=cmplx_H.sel(xcor=max_v[it].coords['xcor'].values,ycor=max_v[it].coords['ycor'].values)
+        r = np.arctan2(1,np.real(y_max_val/x_max_val))
+        v_co=cmplx_E*np.sin(r)+cmplx_H*np.cos(r)
+        v_cross=cmplx_E*np.cos(r)-cmplx_H*np.sin(r)
+        # #normalise main beam phase to 0 deg wtf does this do
+        # pr = abs(v_co.max())/v_co.max()
+        # v_co=v_co* pr
+        # v_cross=v_cross*pr
+
+        return v_co,v_cross
 
     def save(self) -> None:
         self.data.to_netcdf(self.data.filename[:-4]+'.nc')
@@ -121,7 +135,8 @@ class gridfile:
 # %%
 
 test=gridfile('asym_test.grd')
-bla,cmplx=test.in_dB(test.data.sel(comp=['re_y','i_y']),0)
+bla,cmplx=test.in_dB(test.data.sel(comp=['E_re','E_i']),0)
 bla2,maxdB=test.power(test.data,0)
 bla2.sel(band=1).plot.contour(levels=[3400,3000,2000,1000,500,200,100,50,10,1])
 bla2.sel(band=1).where(bla2.sel(band=1)==bla2.sel(band=1).max(dim=["ycor","xcor"]),drop=True)
+co,cross=test.co_cross(test.data)
