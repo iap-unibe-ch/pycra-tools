@@ -60,14 +60,13 @@ class gridfile:
                     matrix[y,x,1]=float(line[1])
                     matrix[y,x,2]=float(line[2])
                     matrix[y,x,3]=float(line[3])
-            matrix=matrix.transpose(1,0,2)
             matrix4d = np.expand_dims(matrix, 3)
             da = xr.DataArray(
                 data=matrix4d,
-                dims=["xcor","ycor","comp","band"],
+                dims=["ycor","xcor","comp","band"],
                 name=fname,
                 coords=dict(
-                    xcor=(["xcor"],np.linspace(xlims[0],xlims[1],nx)), #X and y should be swapped somehow?
+                    xcor=(["xcor"],np.linspace(xlims[0],xlims[1],nx)), 
                     ycor=(["ycor"],np.linspace(ylims[0],ylims[1],ny)),
                     comp=(["comp"],["re_x","i_x","re_y","i_y"]),
                     band=(["band"],[idx+1]),
@@ -125,3 +124,4 @@ test=gridfile('asym_test.grd')
 bla,cmplx=test.in_dB(test.data.sel(comp=['re_y','i_y']),0)
 bla2,maxdB=test.power(test.data,0)
 bla2.sel(band=1).plot.contour(levels=[3400,3000,2000,1000,500,200,100,50,10,1])
+bla2.sel(band=1).where(bla2.sel(band=1)==bla2.sel(band=1).max(dim=["ycor","xcor"]),drop=True)
