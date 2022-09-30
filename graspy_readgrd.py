@@ -1,22 +1,30 @@
 #%%
+from logging import raiseExceptions
+from turtle import end_fill
 import xarray as xr
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
 
-attr_sphere= [
+class gridfile:
+    _attr_sphere= [
     {1: "linear thet and phi",2: "rhc and lhc",3: "ludwigs co and cx",4: "major and minor axes",5: "xpd E_thet/E_phi and E_phi/E_thet",6: "xpd rhc/lhc and lhc/rhc",7: "xpd co/cx and cx/co",8: "xpd major/minor and minor/major",9: "total power and sqrt rhc/lhc"},
     {2: "two field comp",3: "three field comp",5: "rcs for both polarisations"},
     {1: "uv-grid",4: "elevation over azimuth",5: "elevation and azimuth",6: "azimuth over elevation",7: "theta_phi grid", 9: "azimuth over elevation,edx",10: "elevation over azimuth,edx"}
     ]
 
-axis_label= {1: ["u","v"],4:["Azimuth (deg)","Elevation (deg)"],5:["Azimuth (deg)","Elevation (deg)"],6:["Azimuth (deg)","Elevation (deg)"],7:["Phi (deg)","Theta (deg)"],9:["Azimuth (deg)","Elevation (deg)"],10:["Azimuth (deg)","Elevation (deg)"]}
+    _axis_label= {1: ["u","v"],4:["Azimuth (deg)","Elevation (deg)"],5:["Azimuth (deg)","Elevation (deg)"],6:["Azimuth (deg)","Elevation (deg)"],7:["Phi (deg)","Theta (deg)"],9:["Azimuth (deg)","Elevation (deg)"],10:["Azimuth (deg)","Elevation (deg)"]}
 
-class gridfile:
     def __init__(self, fname: str) -> xr.DataArray:
-        self.data=self.readgrid(fname)
-
-    def readgrid(self,fname: str,attr_key=attr_sphere) -> xr.DataArray:
+        if fname[-3:] == "grd":
+            self.data=self.readgrid(fname)
+        elif fname[-2:] == "nc":
+            self.data = xr.open_dataarray(fname)
+            self.data.name=self.data.filename
+        else:
+            raise Exception("File not found:" + fname)
+        
+    def readgrid(self,fname: str,attr_key=_attr_sphere) -> xr.DataArray:
         f_grid = open(fname,'r')
 
         header=[]
@@ -98,53 +106,57 @@ class gridfile:
         for it in power_grid.band:
             s=power_grid.sel(band=it).where(power_grid.sel(band=it)==power_grid.sel(band=it).max(dim=["xcor","ycor"]),drop=True).squeeze()
             max_dB.append(10*np.log10(s))
-        else:
-            xr.merge([self.data,power_grid]) 
-            return max_dB
+        xr.merge([self.data,power_grid]) 
+        return max_dB
 
     def co_cross(self,grid_array: xr.DataArray) -> None:
         max_v=self.power(grid_array)
         cmplx_E=grid_array.isel(comp=0)+grid_array.isel(comp=1)*1j
         cmplx_H=grid_array.isel(comp=2)+grid_array.isel(comp=3)*1j
+        co_l=[]
         for it in max_v: #this will still break if its more than one band
-            x_max_val=cmplx_E.sel(xcor=it.coords['xcor'].values,ycor=it.coords['ycor'].values)
+            x_max_val=cmplx_E.sel(xcor=it.coords['xcor'].values,ycor=it.coords['ycor'].values,band=it.coords['band'].values)
             y_max_val=cmplx_H.sel(xcor=it.coords['xcor'].values,ycor=it.coords['ycor'].values)
-        r = np.arctan2(1,np.real(y_max_val/x_max_val))
-        v_co=cmplx_E*np.sin(r)+cmplx_H*np.cos(r)
-        v_cross=cmplx_E*np.cos(r)-cmplx_H*np.sin(r)
-        # #normalise main beam phase to 0 deg wtf does this do
-        pr=v_co.isel(ycor=np.abs(v_co).argmax(dim='ycor')) #fun fact np.max only looks at real part. MATLAB max looks at abs. value
-        b=np.abs(pr)
-        b=np.array(b)
-        b=b.reshape((1,241))
-        a=np.array(pr)
-        a=a.reshape((1,241))
-        pr=np.linalg.lstsq(a.T,b.T)[0]
-        v_co=v_co*pr
+            r = np.arctan2(1,np.real(y_max_val/x_max_val))
+            v_co=cmplx_E*np.sin(r)+cmplx_H*np.cos(r)
+            v_cross=cmplx_E*np.cos(r)-cmplx_H*np.sin(r)
+            # #normalise main beam phase to 0 deg wtf does this do
+            pr=v_co.isel(np.abs(v_co).argmax(dim=['ycor','xcor'])) #fun fact np.max only looks at real part. MATLAB max looks at abs. value
+            pr=np.abs(pr)/pr
+            co_l.append(v_co*pr)
+            v_cross=v_cross*pr
+            #add x y z to this function at some point later
+            co_dB=20*np.log10(np.abs(v_co/v_co.isel(np.abs(v_co).argmax(dim=['ycor','xcor']))))
+            cross_dB=20*np.log10(np.abs(v_cross/v_co.isel(np.abs(v_co).argmax(dim=['ycor','xcor']))))
+
         v_co.name="co_polar"
-        v_cross=v_cross*pr
         v_cross.name="x_polar"
-        #add x y z to this function at some point later
-        co_dB=20*np.log10(np.abs(v_co/v_co.isel(np.abs(v_co).argmax(dim=['ycor','xcor']))))
         co_dB.name="co_dB"
-        cross_dB=20*np.log10(np.abs(v_cross/v_co.isel(np.abs(v_co).argmax(dim=['ycor','xcor']))))
         cross_dB.name="x_dB"
         self.data=xr.merge([self.data,v_co,v_cross,co_dB,cross_dB])
 
     def plotcont(self,grid_array: xr.DataArray) -> None:
         fig,ax = plt.subplots()
-        con=grid_array.plot.contour(colors='k',levels=[-30,-20,-10,-6,-3,-0.1])
-        ax.set_xlabel(axis_label[test.data.igrid[0]][0])
-        ax.set_ylabel(axis_label[test.data.igrid[0]][1])
+        con=grid_array.plot.contour(colors='k',levels=[-30,-20,-10,-6,-3,-0.1],linestyles='solid')
+        ax.set_xlabel(self._axis_label[int(self.data.igrid[0])][0])
+        ax.set_ylabel(self._axis_label[int(self.data.igrid[0])][1])
+        ax.set_title(str(self.data.freqs[grid_array.band.values-1])+"GHz")
+        
         return fig,ax,con
 
     def save(self) -> None:
-        self.data.to_netcdf(self.data.filename[:-4]+'.nc')
+        self.data[test.data.filename].to_netcdf(self.data.filename[:-4]+'.nc')
 
     
 # %%
 
-test=gridfile('asym_test.grd')
+# test=gridfile('asym_test.grd')
+# maxdB=test.power(test.data)
+# test.co_cross(test.data)
+# fig,ax,con=test.plotcont(test.data.co_dB.sel(band=1))
+
+# %%
+test=gridfile('farfield_183.grd')
 maxdB=test.power(test.data)
 test.co_cross(test.data)
 fig,ax,con=test.plotcont(test.data.co_dB.sel(band=1))
