@@ -1,163 +1,257 @@
 # %%
-from logging import raiseExceptions
-from turtle import end_fill
 import xarray as xr
 import numpy as np
-import sys
 import matplotlib.pyplot as plt
+import matplotlib.contour as contour
 from typing import List
+from pathlib import Path
+
+SPHERICAL_ATTRIBUTES = [
+    {
+        1: "linear E_theta and E_phi",
+        2: "rhc and lhc",
+        3: "Ludwigs co and cx",
+        4: "major and minor axes",
+        5: "xpd E_theta/E_phi and E_phi/E_theta",
+        6: "xpd rhc/lhc and lhc/rhc",
+        7: "xpd co/cx and cx/co",
+        8: "xpd major/minor and minor/major",
+        9: "total power and sqrt rhc/lhc",
+        51: "RCS: theta_vv and theta_vh",
+        52: "RCS: theta_hh and theta_hv",
+        53: "RCS: theta_vv, theta_vh, theta_hh, theta_hv and theta_t",
+    },
+    {
+        2: "two field comp",
+        3: "three field comp",
+        5: "rcs for both polarisations"
+    },
+    {
+        1: "uv-grid",
+        4: "elevation over azimuth",
+        5: "elevation and azimuth",
+        6: "azimuth over elevation",
+        7: "theta phi grid",
+        9: "azimuth over elevation,edx",
+        10: "elevation over azimuth,edx"
+    }
+]
+
+PLANAR_OR_SURFACE_ATTRIBUTES = [
+    {
+        1: "linear E_theta and E_phi",
+        2: "rhc and lhc",
+        3: "Linear along x and y direction",
+        4: "major and minor axes",
+        5: "xpd E_rho/E_theta and E_theta/E_rho",
+        6: "xpd rhc/lhc and lhc/rhc",
+        7: "xpd Ex/Ey and Ey/Ex",
+        8: "xpd major/minor and minor/major",
+        9: "total power and sqrt rhc/lhc",
+        11: "Real part of x,y,z poynting vector"
+    },
+    {
+        3: "three field comp",
+    },
+    {
+        2: "rho, theta grid",
+        3: "x, y grid"
+    }
+]
+
+CYLINDRICAL_ATTRIBUTES = [
+    {
+        2: "rhc and lhc",
+        3: "Linear E_theta and E_z",
+        4: "major and minor axes",
+        6: "rhc/lhc and lhc/rhc",
+        7: "E_z/E_theta and E_theta/E_z",
+        8: "major/minor and minor/major",
+        9: "total power and sqrt rhc/lhc",
+    },
+    {
+        3: "three field comp",
+    },
+    {
+        8: "Theta, z grid"
+    }
+]
+
+AXIS_LABELS = {
+    1: ["u", "v"],
+    2: ["Rho", "Theta"],
+    3: ["X", "Y"],
+    4: ["Azimuth (deg)", "Elevation (deg)"],
+    5: ["Azimuth (deg)", "Elevation (deg)"],
+    6: ["Azimuth (deg)", "Elevation (deg)"],
+    7: ["Phi (deg)", "Theta (deg)"],
+    8: ["Theta", "z"],
+    9: ["Azimuth (deg)", "Elevation (deg)"],
+    10: ["Azimuth (deg)", "Elevation (deg)"]
+}
 
 
-class gridfile:
-    _attr_sphere = [
-        {1: "linear thet and phi", 2: "rhc and lhc", 3: "ludwigs co and cx", 4: "major and minor axes",
-         5: "xpd E_thet/E_phi and E_phi/E_thet", 6: "xpd rhc/lhc and lhc/rhc", 7: "xpd co/cx and cx/co",
-         8: "xpd major/minor and minor/major", 9: "total power and sqrt rhc/lhc"},
-        {2: "two field comp", 3: "three field comp", 5: "rcs for both polarisations"},
-        {1: "uv-grid", 4: "elevation over azimuth", 5: "elevation and azimuth", 6: "azimuth over elevation",
-         7: "theta_phi grid", 9: "azimuth over elevation,edx", 10: "elevation over azimuth,edx"}
-    ]
-
-    _axis_label = {1: ["u", "v"], 4: ["Azimuth (deg)", "Elevation (deg)"], 5: ["Azimuth (deg)", "Elevation (deg)"],
-                   6: ["Azimuth (deg)", "Elevation (deg)"], 7: ["Phi (deg)", "Theta (deg)"],
-                   9: ["Azimuth (deg)", "Elevation (deg)"], 10: ["Azimuth (deg)", "Elevation (deg)"]}
-
-    def __init__(self, fnames: List[str]) -> None:
+class GridFile:
+    def __init__(self, file_names: List[str]) -> None:
         dat_list = []
-        for fn in fnames:
-            if fn[-3:] == "grd":
-                dat_list.append(self.readgrid(fn))
-            elif fn[-2:] == "nc":
-                dat_list.append(xr.open_dataarray(fn))
-                # self.data.name = self.data.filename this needs to be added somehow
-            else:
-                raise Exception("File not found:" + fn)
+        for file_name in file_names:
+            path = Path(file_name)
+            if not path.is_file():
+                raise Exception("File not found:" + file_name)
+
+            extension = path.suffix
+            match extension:
+                case ".grd":
+                    dat_list.append(self._read_grid(file_name))
+                case ".nc":
+                    dat_list.append(xr.open_dataarray(file_name))
+
         self.data = xr.concat(dat_list, dim="freq", combine_attrs="override")
         for attr in ["filename", "source_field", "freq_name"]:
             at_list = []
             for ds in dat_list:
-                at_list.append(ds.attrs[attr])
+                if isinstance(ds.attrs[attr], list):
+                    at_list.extend(ds.attrs[attr])
+                else:
+                    at_list.append(ds.attrs[attr])
             self.data.attrs[attr] = at_list
 
-    def readgrid(self, fname: str, attr_key: dict = _attr_sphere) -> xr.DataArray:
-        f_grid = open(fname, 'r')
-
-        header = []
-        while 1:
-            line = f_grid.readline()
-            if line[0:4] == "++++":
-                break
-            else:
+    def _read_grid(self, file_name: str, data_name: str = None) -> xr.DataArray:  # MISSING: 3 component processing
+        if data_name is None:
+            data_name = file_name.split('.')[0]
+        with open(file_name, 'r') as file_grid:
+            header = []
+            line = file_grid.readline()
+            while line[0:4] != "++++":
                 header.append(line)
+                line = file_grid.readline()
 
-        freq = []
-        for i in header[-1].split():
-            freq.append(float(i))
+            frequencies = [float(n) for n in header[-1].split()]
+            sources = [x.strip()[19:] for x in header[2:-3]]
 
-        sources = []
-        for i in header[2:-3]:
-            sources.append(i.strip()[19:])
+            ktype = file_grid.readline()
+            nset, icomp, ncomp, igrid = [int(s) for s in file_grid.readline().split()]
 
-        ktype = f_grid.readline()
-        nset, icomp, ncomp, igrid = [int(s) for s in f_grid.readline().split()]
-
-        beamc = []
-        for i in range(int(nset)):
-            beamc.append([float(s) for s in f_grid.readline().split()])
-
-        list_da = []
-        for idx, f in enumerate(freq):
-            lims = f_grid.readline().split()
-            xlims = [float(s) for s in lims[0:3:2]]
-            ylims = [float(s) for s in lims[1:4:2]]
-
-            nx, ny, klimit = [int(s) for s in f_grid.readline().split()]
-
-            stpx = (xlims[1] - xlims[0]) / (nx - 1)
-            stpy = (ylims[1] - ylims[0]) / (ny - 1)
-
-            matrix = np.full(shape=(ny, nx, 4), fill_value=np.nan)
-
-            if klimit == 1:
-                for y in range(ny):
-                    Is, In = [int(s) for s in f_grid.readline().split()]
-                    Is -= 1
-                    for x in range(In):
-                        line = f_grid.readline().split()
-                        matrix[y, Is+x, 0] = float(line[0])
-                        matrix[y, Is+x, 1] = float(line[1])
-                        matrix[y, Is+x, 2] = float(line[2])
-                        matrix[y, Is+x, 3] = float(line[3])
-                # sys.exit("In .grd file KLIMIT = 1. Code not finished for this")
+            # Determining grid type
+            if igrid in CYLINDRICAL_ATTRIBUTES[2].keys():
+                attributes = CYLINDRICAL_ATTRIBUTES
+                grid_type = "cylindrical"
+            elif ncomp == 2:
+                attributes = SPHERICAL_ATTRIBUTES
+                grid_type = "spherical"
+            elif ncomp == 3:
+                if igrid in PLANAR_OR_SURFACE_ATTRIBUTES[0].keys():
+                    attributes = PLANAR_OR_SURFACE_ATTRIBUTES
+                    grid_type = "planar or surface"
+                elif igrid in SPHERICAL_ATTRIBUTES[0].keys():
+                    attributes = SPHERICAL_ATTRIBUTES
+                    grid_type = "spherical"
+                else:
+                    raise Exception(f"Combination of ICOMP, NCOMP, IGRID values invalid/unaccounted for")
             else:
-                Is = 1
-                Ie = nx
-                for y in range(ny):
-                    for x in range(nx):
-                        line = f_grid.readline().split()
-                        matrix[y, x, 0] = float(line[0])
-                        matrix[y, x, 1] = float(line[1])
-                        matrix[y, x, 2] = float(line[2])
-                        matrix[y, x, 3] = float(line[3])
-            matrix4d = np.expand_dims(matrix, 3)
-            da = xr.DataArray(
-                data=matrix4d,
-                dims=["ycor", "xcor", "comp", "freq"],
-                name=fname,
-                coords=dict(
-                    xcor=(["xcor"], np.linspace(xlims[0], xlims[1], nx)),
-                    ycor=(["ycor"], np.linspace(ylims[0], ylims[1], ny)),
-                    comp=(["comp"], ["E_re", "E_i", "H_re", "H_i"]),
-                    freq=(["freq"], [f]),
-                ),
-                attrs=dict(
-                    filename=fname,
-                    nset=[nset, "number of field sets or beams"],
-                    icomp=[icomp, attr_key[0][icomp]],
-                    ncomp=[ncomp, attr_key[1][ncomp]],
-                    igrid=[igrid, attr_key[2][igrid]],
-                    source_field=sources,
-                    freq_name=header[-3].strip()[16:],
-                ),
-            )
-            list_da.append(da)
+                raise Exception(f"Combination of ICOMP, NCOMP, IGRID values invalid/unaccounted for")
+
+            beamc = []
+            for i in range(int(nset)):
+                beamc.append([float(s) for s in file_grid.readline().split()])
+
+            list_da = []
+            for index, frequency in enumerate(frequencies):
+                limits = file_grid.readline().split()
+                x_limits = [float(s) for s in limits[0:3:2]]
+                y_limits = [float(s) for s in limits[1:4:2]]
+
+                nx, ny, klimit = [int(s) for s in file_grid.readline().split()]
+
+                stpx = (x_limits[1] - x_limits[0]) / (nx - 1)
+                stpy = (y_limits[1] - y_limits[0]) / (ny - 1)
+
+                matrix = np.full(shape=(ny, nx, 4), fill_value=np.nan)
+
+                if klimit == 1:
+                    for y in range(ny):
+                        Is, In = [int(s) for s in file_grid.readline().split()]
+                        Is -= 1
+                        for x in range(In):
+                            line = file_grid.readline().split()
+                            matrix[y, Is + x, 0] = float(line[0])
+                            matrix[y, Is + x, 1] = float(line[1])
+                            matrix[y, Is + x, 2] = float(line[2])
+                            matrix[y, Is + x, 3] = float(line[3])
+                else:
+                    Is = 1
+                    Ie = nx
+                    for y in range(ny):
+                        for x in range(nx):
+                            line = file_grid.readline().split()
+                            matrix[y, x, 0] = float(line[0])
+                            matrix[y, x, 1] = float(line[1])
+                            matrix[y, x, 2] = float(line[2])
+                            matrix[y, x, 3] = float(line[3])
+                matrix4d = np.expand_dims(matrix, 3)
+                da = xr.DataArray(
+                    data=matrix4d,
+                    dims=["ycor", "xcor", "comp", "freq"],
+                    name=data_name,
+                    coords=dict(
+                        xcor=(["xcor"], np.linspace(x_limits[0], x_limits[1], nx)),
+                        ycor=(["ycor"], np.linspace(y_limits[0], y_limits[1], ny)),
+                        comp=(["comp"], ["E_re", "E_i", "H_re", "H_i"]),
+                        freq=(["freq"], [frequency]),
+                    ),
+                    attrs=dict(
+                        filename=file_name,
+                        grid_type=grid_type,
+                        nset=[nset, "number of field sets or beams"],
+                        icomp=[icomp, attributes[0][icomp]],
+                        ncomp=[ncomp, attributes[1][ncomp]],
+                        igrid=[igrid, attributes[2][igrid]],
+                        source_field=sources,
+                        freq_name=header[-3].strip()[16:],
+                    ),
+                )
+                list_da.append(da)
         da = xr.concat(list_da, dim="freq")
         return da
 
-    def power(self, grid_array: xr.DataArray = None) -> xr.DataArray:
+    def power(self, grid_array: xr.DataArray = None) -> List:  # MISSING: 3 component processing
         # This is a "shortcut" way of computing the power without having to convert to complex values first
         if grid_array is None:
             grid_array = self.data
         power_grid = grid_array ** 2
         power_grid = power_grid.sum(dim="comp")
         power_grid.name = "power"
-        max_dB = []
-        for it in power_grid.freq.values:
-            s = power_grid.sel(freq=it).where(
-                power_grid.sel(freq=it) == power_grid.sel(freq=it).max(dim=["xcor", "ycor"]), drop=True).squeeze()
-            max_dB.append(10 * np.log10(s))
+        max_db = []
+        for frequency in power_grid.freq.values:
+            s = power_grid\
+                .sel(freq=frequency)\
+                .where(power_grid.sel(freq=frequency) == power_grid.sel(freq=frequency).max(dim=["xcor", "ycor"])
+                       , drop=True).squeeze()
+            max_db.append(10 * np.log10(s))
         xr.merge([self.data, power_grid])
-        return max_dB
+        return max_db
 
-    def co_cross(self, grid_array: xr.DataArray = None) -> None:
+    def co_cross(self, grid_array: xr.DataArray = None) -> None:  # MISSING: 3 component processing
         if grid_array is None:
             grid_array = self.data
         max_v = self.power(grid_array)
-        cmplx_E = grid_array.isel(comp=0) + grid_array.isel(comp=1) * 1j
-        cmplx_H = grid_array.isel(comp=2) + grid_array.isel(comp=3) * 1j
-        co_l = []
-        for it in max_v:  # this will still break if its more than one band
-            x_max_val = cmplx_E.sel(xcor=it.coords['xcor'].values, ycor=it.coords['ycor'].values,
+        complex_E = grid_array.isel(comp=0) + grid_array.isel(comp=1) * 1j
+        complex_H = grid_array.isel(comp=2) + grid_array.isel(comp=3) * 1j
+        for it in max_v:
+            x_coordinate_values = it.coords['xcor'].values
+            y_coordinate_values = it.coords['ycor'].values
+            x_max_val = complex_E.sel(xcor=x_coordinate_values, ycor=y_coordinate_values,
                                     freq=it.coords['freq'].values)
-            y_max_val = cmplx_H.sel(xcor=it.coords['xcor'].values, ycor=it.coords['ycor'].values)
+            y_max_val = complex_H.sel(xcor=x_coordinate_values, ycor=y_coordinate_values,
+                                    freq=it.coords['freq'].values)
             r = np.arctan2(1, np.real(y_max_val / x_max_val))
-            v_co = cmplx_E * np.sin(r) + cmplx_H * np.cos(r)
-            v_cross = cmplx_E * np.cos(r) - cmplx_H * np.sin(r)
+            v_co = complex_E * np.sin(r) + complex_H * np.cos(r)
+            v_cross = complex_E * np.cos(r) - complex_H * np.sin(r)
             # #normalise main beam phase to 0 deg wtf does this do
             pr = v_co.isel(np.abs(v_co).argmax(
                 dim=['ycor', 'xcor']))  # fun fact np.max only looks at real part. MATLAB max looks at abs. value
             pr = np.abs(pr) / pr
-            co_l.append(v_co * pr)
+            v_co = v_co * pr
             v_cross = v_cross * pr
             # add x y z to this function at some point later
             co_dB = 20 * np.log10(np.abs(v_co / v_co.isel(np.abs(v_co).argmax(dim=['ycor', 'xcor']))))
@@ -169,25 +263,15 @@ class gridfile:
         cross_dB.name = "x_dB"
         self.data = xr.merge([self.data, v_co, v_cross, co_dB, cross_dB])
 
-    def plotcont(self, grid_array: xr.DataArray) -> None:
+    def plotcont(self, grid_array: xr.DataArray) -> tuple[plt.Figure, plt.Axes, contour.ContourSet]:
         fig, ax = plt.subplots()
         con = grid_array.plot.contour(colors='k', levels=[-30, -20, -10, -6, -3, -0.1], linestyles='solid')
-        ax.set_xlabel(self._axis_label[int(self.data.igrid[0])][0])
-        ax.set_ylabel(self._axis_label[int(self.data.igrid[0])][1])
+        ax.set_xlabel(AXIS_LABELS[int(self.data.igrid[0])][0])
+        ax.set_ylabel(AXIS_LABELS[int(self.data.igrid[0])][1])
         ax.set_title(str(grid_array.freq.item()) + "GHz")
-
         return fig, ax, con
 
-    def save(self) -> None:
-        self.data[self.data.filename].to_netcdf(self.data.filename[:-4] + '.nc')
-
-
-##
-
-test = gridfile(["far_uv_54.grd"])
-# maxdB=test.power(test.data)
-# test.co_cross(test.data)
-# fig,ax,con=test.plotcont(test.data.co_dB.sel(band=1))
-
-##
-
+    def save(self, file_name: str = None) -> None:
+        if file_name is None:
+            file_name = self.data.name
+        self.data.to_netcdf(f"{file_name}.nc")
