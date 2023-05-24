@@ -7,4 +7,4 @@ import os
 # print(test.data)
 # test.power()
 
-test = gr.GridFile(["far_uv_54.grd"])
+test = gr.CutFile(["cut_54.cut"])
