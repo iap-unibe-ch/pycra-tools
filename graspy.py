@@ -90,22 +90,40 @@ CYLINDRICAL_ATTRIBUTES = [
 ]
 
 GRID_AXIS_LABELS = {
-    1: ["u", "v"],
-    2: ["Rho [deg]", "Theta [deg]"],
-    3: ["X", "Y"],
-    4: ["Azimuth [deg]", "Elevation [deg]"],
-    5: ["Azimuth [deg]", "Elevation [deg]"],
-    6: ["Azimuth [deg]", "Elevation [deg]"],
-    7: ["Phi [deg]", "Theta [deg]"],
-    8: ["Theta", "z"],
-    9: ["Azimuth [deg]", "Elevation [deg]"],
-    10: ["Azimuth [deg]", "Elevation [deg]"]
+    #   Name, Name, unit, unit, Longname, Longname
+    1: ["u", "v", "", "", "U", "V"],
+    2: ["Rho", "Theta", "deg", "deg", "$\\rho$", "$\\theta$"],
+    3: ["X", "Y", "mm", "mm", "X-axis", "Y-axis"],
+    4: ["Az", "El", "deg", "deg", "Azimuth", "Elevation"],
+    5: ["Az", "El", "deg", "deg", "Azimuth", "Elevation"],
+    6: ["Az", "El", "deg", "deg", "Azimuth", "Elevation"],
+    7: ["Phi", "Theta", "deg", "deg", "$\\phi$", "$\\theta$"],
+    8: ["Theta", "z", "deg", "mm", "$\\theta$", "Z-distance"],
+    9: ["Az", "El", "deg", "deg", "Azimuth", "Elevation"],
+    10: ["Az", "El", "deg", "deg", "Azimuth", "Elevation"],
+}
+
+COMP_LABELS = {
+    1: ["$E_\\theta$", "$E_\phi$"],
+    2: ["RHC", "LHC"],
+    3: ["Co", "Cross"],
+    4: ["Major", "Minor"],
+    5: ["$\\frac{E_\\theta}{E_\phi}$", "$\\frac{E_\phi}{E_\\theta}$"],
+    6: ["$\\frac{RHC}{LHC}$", "$\\frac{LHC}{RHC}$"],
+    7: ["$\\frac{Co}{Cross}$", "$\\frac{Cross}{Co}$"],
+    8: ["$\\frac{major}{minor}$", "$\\frac{minor}{major}$"],
+    9: ["Total Power", "$\sqrt{\\frac{RHC}{LHC}$"],
+    11: ["X Poynting", "Y Poynting", "Z Poynting"],
+    51: ["$\sigma_{VV}$", "$\sigma_{VH}$"],
+    52: ["$\sigma_{HH}$", "$\sigma_{HV}$"],
+    53: ["$\sigma_{VV}$", "$\sigma_{VH}$", "$\sigma_{HH}$", "$\sigma_{HV}$", "$\sigma_{T}$"],
 }
 
 CUT_AXIS_LABELS = {
-    "spherical": ["Theta [deg]", "Phi [deg"],
-    "planar or surface": ["Rho [distance]", "Theta [deg"],
-    "cylindrical": ["Z [distance]", "Phi [deg]"]
+    # grid type: Name, Name, unit, unit, Longname, Longname
+    "spherical": ["Theta", "Phi", "deg", "deg", "$\\theta$", "$\phi$"],
+    "planar or surface": ["Rho", "Theta", "distance", "deg", "$\\rho$", "$\\theta$"],
+    "cylindrical": ["Z", "Phi", "distance", "deg", "Z", "$\\phi$"]
 }
 
 
@@ -176,6 +194,10 @@ class GridFile:
 
             attributes, grid_type = check_grid_or_cut_type(icomp, ncomp, igrid, "grid")
 
+            xname, yname, xunit, yunit, xlname, ylname = GRID_AXIS_LABELS[igrid][:]
+
+
+
             beamc = []
             for i in range(int(nset)):
                 beamc.append([float(s) for s in file_grid.readline().split()])
@@ -191,7 +213,7 @@ class GridFile:
                 stpx = (x_limits[1] - x_limits[0]) / (nx - 1)
                 stpy = (y_limits[1] - y_limits[0]) / (ny - 1)
 
-                matrix = np.full(shape=(ny, nx, 2 * ncomp), fill_value=np.nan)
+                matrix = np.full(shape=(ny, nx, ncomp), fill_value=np.nan, dtype=complex)
 
                 if klimit == 1:
                     for y in range(ny):
@@ -199,28 +221,32 @@ class GridFile:
                         Is -= 1
                         for x in range(In):
                             line = file_grid.readline().split()
-                            matrix[y, Is + x, :] = [float(val) for val in line[:]]
+                            for i in range(0, len(line), 2):
+                                matrix[y, Is + x, i // 2] = complex(float(line[i]), float(line[i+1]))
                 elif klimit == 0:
                     Is = 1
                     Ie = nx
                     for y in range(ny):
                         for x in range(nx):
                             line = file_grid.readline().split()
-                            matrix[y, x, :] = [float(val) for val in line[:]]
+                            for i in range(0, len(line), 2):
+                                matrix[y, x, i // 2] = complex(float(line[i]), float(line[i+1]))
+
                 else:
                     raise Exception(f"Unknown KLIMIT = {klimit}")
+
 
                 matrix4d = np.expand_dims(matrix, 3)
                 da = xr.DataArray(
                     data=matrix4d,
-                    dims=["y", "x", "comp", "freq"],
+                    dims=[yname, xname, "comp", "freq"],
                     name=data_name,
-                    coords=dict(
-                        xcor=(["x"], np.linspace(x_limits[0], x_limits[1], nx)),
-                        ycor=(["y"], np.linspace(y_limits[0], y_limits[1], ny)),
-                        comp=(["comp"], ["E_re", "E_i", "H_re", "H_i"]),
-                        freq=(["freq"], [frequency]),
-                    ),
+                    coords=[ #3D not yet accommodated here
+                        (xname, np.linspace(x_limits[0], x_limits[1], nx), {"units": xunit, "long_name": xlname}),
+                        (yname, np.linspace(y_limits[0], y_limits[1], ny), {"units": yunit, "long_name": ylname}),
+                        ("comp", [COMP_LABELS[icomp][0], COMP_LABELS[icomp][1]], {"long_name": "Field component"}),
+                        ("freq", [frequency], {"unit": "GHz"})
+                    ],
                     attrs=dict(
                         filename=file_name,
                         grid_type=grid_type,
@@ -236,21 +262,21 @@ class GridFile:
         da = xr.concat(list_da, dim="freq")
         return da
 
-    def power(self, grid_array: xr.DataArray = None) -> List:  # MISSING: 3 component processing
-        # This is a "shortcut" way of computing the power without having to convert to complex values first
+    def power(self, grid_array: xr.DataArray = None) -> List:
         if grid_array is None:
             grid_array = self.data
-        power_grid = grid_array ** 2
+        power_grid = abs(grid_array)**2
         power_grid = power_grid.sum(dim="comp")
         power_grid.name = "power"
+        xy_dims = grid_array.dims[0:2]
         max_db = []
         for frequency in power_grid.freq.values:
             s = power_grid \
                 .sel(freq=frequency) \
-                .where(power_grid.sel(freq=frequency) == power_grid.sel(freq=frequency).max(dim=["xcor", "ycor"])
+                .where(power_grid.sel(freq=frequency) == power_grid.sel(freq=frequency).max(dim=xy_dims)
                        , drop=True).squeeze()
             max_db.append(10 * np.log10(s))
-        xr.merge([self.data, power_grid])
+        self.data = xr.merge([self.data, power_grid]) #this is not added in dB
         return max_db
 
     def co_cross(self, grid_array: xr.DataArray = None) -> None:  # MISSING: 3 component processing
@@ -348,7 +374,7 @@ class CutFile:
                 cut_orientation = list(set(cut_orientation))
                 no_of_cuts = no_of_cuts // no_of_frequencies
 
-            matrix = np.full(shape=(no_of_cuts, v_num, 4, no_of_frequencies), fill_value=np.nan)
+            matrix = np.full(shape=(no_of_cuts, v_num, ncomp, no_of_frequencies), fill_value=np.nan, dtype=complex)
             for frequency in range(no_of_frequencies):
                 for cut in range(no_of_cuts):
                     cut_start = cut * frequency * (v_num + 2)
@@ -356,18 +382,20 @@ class CutFile:
                     v_ini, v_inc, v_num, c, icomp, icut, ncomp = [float(s) if '.' in s else int(s) for s in line]
                     for index in range(v_num):
                         line = lines[cut_start + index + 2].split()
-                        matrix[cut, index, :] = [float(val) for val in line[:]]
+                        for i in range(0, len(line), 2):
+                            matrix[cut, index, i // 2] = complex(float(line[i]), float(line[i + 1]))
 
+            xname, yname, xunit, yunit, xlname, ylname = CUT_AXIS_LABELS[cut_type][:]
             da = xr.DataArray(
                 data=matrix,
-                dims=["cut_rot", "angle", "comp", "freq"],
+                dims=[yname, xname, "comp", "freq"],
                 name=data_name,
-                coords=dict(
-                    cut_rot=(["cut_rot"], cut_orientation),
-                    angle=(["angle"], np.linspace(v_ini, (v_num - 1) * v_inc, v_num)),
-                    comp=(["comp"], ["E_re", "E_i", "H_re", "H_i"]),
-                    freq=(["freq"], np.arange(0, no_of_frequencies))
-                ),
+                coords=[
+                    (xname, cut_orientation, {"units": xunit, "long_name": xlname}),
+                    (yname, np.linspace(v_ini, (v_num - 1) * v_inc, v_num), {"units": yunit, "long_name": ylname}),
+                    ("comp", [COMP_LABELS[icomp][0], COMP_LABELS[icomp][1]], {"long_name": "Field component"}),
+                    ("freq", np.arange(0, no_of_frequencies))
+                ],
                 attrs=dict(
                     filename=file_name,
                     cut_type=cut_type,
