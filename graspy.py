@@ -191,7 +191,6 @@ class GridFile:
                 stpx = (x_limits[1] - x_limits[0]) / (nx - 1)
                 stpy = (y_limits[1] - y_limits[0]) / (ny - 1)
 
-                # We need to separate
                 matrix = np.full(shape=(ny, nx, 2 * ncomp), fill_value=np.nan)
 
                 if klimit == 1:
@@ -357,10 +356,7 @@ class CutFile:
                     v_ini, v_inc, v_num, c, icomp, icut, ncomp = [float(s) if '.' in s else int(s) for s in line]
                     for index in range(v_num):
                         line = lines[cut_start + index + 2].split()
-                        matrix[cut, index, 0, frequency] = float(line[0])
-                        matrix[cut, index, 1, frequency] = float(line[1])
-                        matrix[cut, index, 2, frequency] = float(line[2])
-                        matrix[cut, index, 3, frequency] = float(line[3])
+                        matrix[cut, index, :] = [float(val) for val in line[:]]
 
             da = xr.DataArray(
                 data=matrix,
