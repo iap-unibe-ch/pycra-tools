@@ -280,27 +280,26 @@ class GridFile:
         return max_db
 
     def co_cross(self, grid_array: xr.DataArray = None) -> None:  # MISSING: 3 component processing
-        # this needs a complete rewrite to account for the fact that now the components are complex instead of split into real and imag
         if grid_array is None:
             grid_array = self.data
         max_v = self.power(grid_array)
-        complex_E = grid_array.sel(comp=)
-        complex_H = grid_array.isel(comp=2) + grid_array.isel(comp=3) * 1j
+        complex_E = grid_array.isel(comp=0)
+        complex_H = grid_array.isel(comp=1)
+        dim_x, dim_y = grid_array.dims[0:2]
         for it in max_v:
             x_max_val = complex_E.sel(freq=it.coords['freq'].values)
             y_max_val = complex_H.sel(freq=it.coords['freq'].values)
             r = np.arctan2(1, np.real(y_max_val / x_max_val))
             v_co = complex_E * np.sin(r) + complex_H * np.cos(r)
             v_cross = complex_E * np.cos(r) - complex_H * np.sin(r)
-            # #normalise main beam phase to 0 deg wtf does this do
-            pr = v_co.isel(np.abs(v_co).argmax(
-                dim=['ycor', 'xcor']))  # fun fact np.max only looks at real part. MATLAB max looks at abs. value
+            # normalise main beam phase to 0 deg wtf does this do
+            pr = v_co.isel(np.abs(v_co).argmax(dim=[dim_x, dim_y]))
+            # fun fact np.max only looks at real part. MATLAB max looks at abs. value
             pr = np.abs(pr) / pr
             v_co = v_co * pr
             v_cross = v_cross * pr
-            # add x y z to this function at some point later
-            co_dB = 20 * np.log10(np.abs(v_co / v_co.isel(np.abs(v_co).argmax(dim=['ycor', 'xcor']))))
-            cross_dB = 20 * np.log10(np.abs(v_cross / v_co.isel(np.abs(v_co).argmax(dim=['ycor', 'xcor']))))
+            co_dB = 20 * np.log10(np.abs(v_co / v_co.isel(np.abs(v_co).argmax(dim=[dim_x, dim_y]))))
+            cross_dB = 20 * np.log10(np.abs(v_cross / v_co.isel(np.abs(v_co).argmax(dim=[dim_x, dim_y]))))
 
         v_co.name = "co_polar"
         v_cross.name = "x_polar"
@@ -310,7 +309,8 @@ class GridFile:
 
     def plotcont(self, grid_array: xr.DataArray) -> tuple[plt.Figure, plt.Axes, contour.ContourSet]:
         fig, ax = plt.subplots()
-        con = grid_array.plot.contour(colors='k', levels=[-30, -20, -10, -6, -3, -0.1], linestyles='solid')
+        #con = grid_array.plot.contour(colors='k', levels=[-30, -20, -10, -6, -3, -0.1], linestyles='solid')
+        con = grid_array.plot.contourf(levels=[-30, -20, -10, -6, -3, -0.1])
         ax.set_xlabel(GRID_AXIS_LABELS[int(self.data.igrid[0])][0])
         ax.set_ylabel(GRID_AXIS_LABELS[int(self.data.igrid[0])][1])
         ax.set_title(str(grid_array.freq.item()) + "GHz")
