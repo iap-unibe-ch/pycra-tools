@@ -310,10 +310,7 @@ class GridFile:
     def plotcont(self, grid_array: xr.DataArray) -> tuple[plt.Figure, plt.Axes, contour.ContourSet]:
         fig, ax = plt.subplots()
         #con = grid_array.plot.contour(colors='k', levels=[-30, -20, -10, -6, -3, -0.1], linestyles='solid')
-        con = grid_array.plot.contourf(levels=[-30, -20, -10, -6, -3, -0.1])
-        ax.set_xlabel(GRID_AXIS_LABELS[int(self.data.igrid[0])][0])
-        ax.set_ylabel(GRID_AXIS_LABELS[int(self.data.igrid[0])][1])
-        ax.set_title(str(grid_array.freq.item()) + "GHz")
+        con = grid_array.plot.contourf(levels=[-70, -60, -50, -40, -30, -20, -10, -6, -3, -0.001])
         return fig, ax, con
 
     def save(self, file_name: str = None) -> None:
