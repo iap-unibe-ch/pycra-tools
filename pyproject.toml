@@ -1,0 +1,33 @@
+# https://peps.python.org/pep-0517/
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# https://peps.python.org/pep-0621/
+[project]
+name = "graspy"
+description = "Package to process Ticra Tools .grd and .cut files"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "BSD 3-Clause License" }
+authors = [
+    { email = "roland.albers@unibe.ch", name = "Roland Albers" },
+]
+dynamic = ["version"]
+dependencies = []
+
+[tool.hatch.version]
+path = "src/graspy/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["src"]
+sources = ["src"]
+
+# extras
+# https://peps.python.org/pep-0621/#dependencies-optional-dependencies
+[project.optional-dependencies]
+test = ["pytest>=6.0"]
+
+[project.urls]
+homepage = "https://github.com/Spect4tor/graspy"
+repository = "https://github.com/Spect4tor/graspy"

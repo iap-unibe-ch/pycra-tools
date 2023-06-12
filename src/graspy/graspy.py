@@ -308,9 +308,16 @@ class GridFile:
         self.data = xr.merge([self.data, v_co, v_cross, co_dB, cross_dB])
 
     def plotcont(self, grid_array: xr.DataArray) -> tuple[plt.Figure, plt.Axes, contour.ContourSet]:
-        fig, ax = plt.subplots()
-        #con = grid_array.plot.contour(colors='k', levels=[-30, -20, -10, -6, -3, -0.1], linestyles='solid')
-        con = grid_array.plot.contourf(levels=[-70, -60, -50, -40, -30, -20, -10, -6, -3, -0.001])
+        fig_handles = []
+        ax_handles = []
+        con_handles = []
+        for i in grid_array.coords['freq'].values:
+            plot_grid = grid_array.sel(freq=i)
+            fig, ax = plt.subplots()
+            con = plot_grid.plot.contourf(levels=[-70, -60, -50, -40, -30, -20, -10, -6, -3, -0.001])
+            fig_handles.append(fig)
+            ax_handles.append(ax)
+            con_handles.append(con)
         return fig, ax, con
 
     def save(self, file_name: str = None) -> None:
