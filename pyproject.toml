@@ -17,7 +17,7 @@ dynamic = ["version"]
 dependencies = []
 
 [tool.hatch.version]
-path = "src/graspy/__init__.py"
+path = "src/pycra/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 only-include = ["src"]
@@ -29,5 +29,5 @@ sources = ["src"]
 test = ["pytest>=6.0"]
 
 [project.urls]
-homepage = "https://github.com/Spect4tor/graspy"
-repository = "https://github.com/Spect4tor/graspy"
+homepage = "https://github.com/Spect4tor/pycra"
+repository = "https://github.com/Spect4tor/pycra"
