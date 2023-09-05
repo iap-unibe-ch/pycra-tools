@@ -14,7 +14,7 @@ authors = [
     { email = "roland.albers@unibe.ch", name = "Roland Albers" },
 ]
 dynamic = ["version"]
-dependencies = []
+dependencies = ["xarray","numpy"]
 
 [tool.hatch.version]
 path = "src/pycra/__init__.py"
