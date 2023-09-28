@@ -7,5 +7,5 @@ from .cutfile import *
 __version__ = "0.0.1"
 __author__ = "Roland Albers"
 __email__ = "roland.albers@unibe.ch"
-__all__ = ['GridFile', 'CutFile', 'utils']
+__all__ = ['gridfile', 'cutfile', 'utils']
 
