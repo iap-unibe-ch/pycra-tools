@@ -4,8 +4,9 @@
 from .gridfile import *
 from .cutfile import *
 from .utils import *
+from ._version import __version__
 
-__version__ = "0.0.1"
+#__version__ = "0.0.1"
 __author__ = "Roland Albers"
 __email__ = "roland.albers@unibe.ch"
 __all__ = ['gridfile', 'cutfile', 'utils']
