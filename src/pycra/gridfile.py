@@ -1,6 +1,7 @@
 import xarray as xr
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.contour as contour
 from typing import List
 from pathlib import Path
 from .labels import COMP_LABELS

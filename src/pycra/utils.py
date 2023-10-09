@@ -1,6 +1,4 @@
 from .labels import CYLINDRICAL_ATTRIBUTES, SPHERICAL_ATTRIBUTES, PLANAR_OR_SURFACE_ATTRIBUTES
-import matplotlib.pyplot as plt
-import matplotlib.contour as contour
 import xarray as xr
 
 def check_grid_or_cut_type(icomp: int, ncomp: int, ival: int, ftype: str) -> [dict, str]:

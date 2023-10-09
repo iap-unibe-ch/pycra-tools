@@ -2,8 +2,8 @@ import xarray as xr
 import numpy as np
 from typing import List
 from pathlib import Path
-
 from xarray import DataArray, Dataset
+import matplotlib.pyplot as plt
 
 from .labels import COMP_LABELS
 from .utils import check_grid_or_cut_type
@@ -105,12 +105,12 @@ def decibel(cut_array: xr.DataArray) -> Dataset:
     db_array.attrs["long_name"] = "Directivity"
     db_array_normalised = 20*np.log10(np.abs(cut_array)/np.abs(cut_array.sel(comp='Co')).max(cut_array.dims[1]))
     db_array_normalised.name = "db0"
-    db_array.attrs["units"] = "dB"
-    db_array.attrs["long_name"] = "Normalised directivity"
+    db_array_normalised.attrs["units"] = "dB"
+    db_array_normalised.attrs["long_name"] = "Normalised directivity"
     db_merged = xr.merge([db_array, db_array_normalised])
     return db_merged
 
 
-def plotcut(cut_array: xr.DataArray) -> tuple[plt.Figure, plt.Axes, contour.ContourSet]:
+def plotcut(cut_array: xr.DataArray):
     # versioning comment5
     return
