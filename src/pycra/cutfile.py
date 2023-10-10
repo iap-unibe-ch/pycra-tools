@@ -111,6 +111,13 @@ def decibel(cut_array: xr.DataArray) -> Dataset:
     return db_merged
 
 
-def plotcut(cut_array: xr.DataArray):
-    # versioning comment5
-    return
+def plotcut(cut_array: xr.DataArray) -> list[plt.Line3D]:
+    # Checking for the largest coordinate array, assuming that to be the x-axis
+    check_coords = cut_array.sizes
+    x_axis = max(check_coords, key=lambda key: check_coords[key])
+    lplot_handles = []
+    for i in cut_array.coords['freq'].values:
+        plot_cut = cut_array.sel(freq=i)
+        lplot = plot_cut.plot.line(x=x_axis)
+        lplot_handles.append(lplot)
+    return lplot_handles

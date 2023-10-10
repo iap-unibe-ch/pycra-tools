@@ -1,6 +1,5 @@
 import xarray as xr
 import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.contour as contour
 from typing import List
 from pathlib import Path
@@ -186,15 +185,10 @@ def co_cross(grid_array: xr.DataArray) -> xr.DataArray:  # MISSING: 3 component 
     return dB_concat
 
 
-def plotcont(grid_array: xr.DataArray) -> tuple[plt.Figure, plt.Axes, contour.ContourSet]:
-    fig_handles = []
-    ax_handles = []
+def plotcont(grid_array: xr.DataArray) -> contour.ContourSet:
     con_handles = []
     for i in grid_array.coords['freq'].values:
         plot_grid = grid_array.sel(freq=i)
-        fig, ax = plt.subplots()
         con = plot_grid.plot.contourf(levels=[-70, -60, -50, -40, -30, -20, -10, -6, -3, -0.001])
-        fig_handles.append(fig)
-        ax_handles.append(ax)
         con_handles.append(con)
-    return fig, ax, con
+    return con_handles
