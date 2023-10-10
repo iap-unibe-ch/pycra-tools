@@ -1,6 +1,7 @@
 import xarray as xr
 import numpy as np
 import matplotlib.contour as contour
+import matplotlib.pyplot as plt
 from typing import List
 from pathlib import Path
 from .labels import COMP_LABELS
@@ -21,7 +22,7 @@ GRID_AXIS_LABELS = {
 }
 
 
-def gridfile(file_names: List[str], data_name: str) -> xr.DataArray:
+def grid(file_names: List[str], data_name: str) -> xr.DataArray:
     if data_name is None:
         data_name = file_names[0].split('.')[0]
     dat_list = []
@@ -191,4 +192,5 @@ def plotcont(grid_array: xr.DataArray) -> contour.ContourSet:
         plot_grid = grid_array.sel(freq=i)
         con = plot_grid.plot.contourf(levels=[-70, -60, -50, -40, -30, -20, -10, -6, -3, -0.001])
         con_handles.append(con)
+        plt.show()
     return con_handles

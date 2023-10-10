@@ -16,7 +16,7 @@ CUT_AXIS_LABELS = {
 }
 
 
-def cutfile(file_names: List[str], data_name: str) -> DataArray:
+def cut(file_names: List[str], data_name: str) -> DataArray:
     if data_name is None:
         data_name = file_names[0].split('.')[0]
     dat_list = []
@@ -111,7 +111,7 @@ def decibel(cut_array: xr.DataArray) -> Dataset:
     return db_merged
 
 
-def plotcut(cut_array: xr.DataArray) -> list[plt.Line3D]:
+def plotcut(cut_array: xr.DataArray) -> list[plt.Line2D]:
     # Checking for the largest coordinate array, assuming that to be the x-axis
     check_coords = cut_array.sizes
     x_axis = max(check_coords, key=lambda key: check_coords[key])
@@ -120,4 +120,5 @@ def plotcut(cut_array: xr.DataArray) -> list[plt.Line3D]:
         plot_cut = cut_array.sel(freq=i)
         lplot = plot_cut.plot.line(x=x_axis)
         lplot_handles.append(lplot)
+        plt.show()
     return lplot_handles
