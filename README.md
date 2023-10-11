@@ -10,7 +10,10 @@ able to use this package effectively.
 
 1. Activate your virtual environment
 ```sh
+# Linux
 source path-to-venv/bin/activate
+# Windows
+path-to-venv\Scripts\activate
 ```
 2. Make sure pip is up to date 
 ```sh

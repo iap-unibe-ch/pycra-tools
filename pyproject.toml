@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 # https://peps.python.org/pep-0621/
 [project]
 name = "pycra"
-description = "Package to process Ticra Tools .grd and .cut files"
+description = "Package to process Ticra Tools .grd and .cut files based on xarray"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "BSD 3-Clause License" }
@@ -14,7 +14,7 @@ authors = [
     { email = "roland.albers@unibe.ch", name = "Roland Albers" },
 ]
 dynamic = ["version"]
-dependencies = ["xarray","numpy"]
+dependencies = ["xarray","matplotlib","numpy"]
 
 [tool.hatch.version]
 source = "vcs"
@@ -32,5 +32,5 @@ version-file = "src/pycra/_version.py"
 test = ["pytest>=6.0"]
 
 [project.urls]
-homepage = "https://github.com/Spect4tor/pycra"
-repository = "https://github.com/Spect4tor/pycra"
+homepage = "https://git.iap.unibe.ch/albers/pycra"
+repository = "https://git.iap.unibe.ch/albers/pycra"
