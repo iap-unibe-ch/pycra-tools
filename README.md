@@ -23,6 +23,7 @@ pip install git+https://git.iap.unibe.ch/albers/pycra.git
 
 
 ## Usage example
+For cutfiles:
 ```py
 from pycra.cutfile import *
 import os
@@ -34,4 +35,18 @@ mycut = cut(["filename.cut"])
 mycut = decibel(mycut)
 # Plotting the db data variable from "mycut"
 plotcut(mycut.db)
+```
+
+For gridfiles:
+```py
+from pycra.gridfile import *
+import os
+
+os.chdir("/path/to/your/data")
+# Import can handle multiple files, so if you're importing a single file still put it in a list
+mygrid = grid(["filename.cut"])
+# Converting the complex data into dB data
+mygrid = co_cross(mygrid)
+# Plotting the db data variable from "mygrid"
+plotcont(mygrid.db)
 ```
