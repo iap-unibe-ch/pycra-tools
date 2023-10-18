@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from typing import List
 from pathlib import Path
 from .labels import COMP_LABELS
-from .utils import check_grid_or_cut_type
+from .utils import *
 
 GRID_AXIS_LABELS = {
     #   Name, Name, unit, unit, Longname, Longname
@@ -145,15 +145,6 @@ def power(grid_array: xr.DataArray) -> xr.DataArray:
     power_grid = abs(grid_array)**2
     power_grid = power_grid.sum(dim="comp")
     power_grid.coords['comp'] = "power"
-    # xy_dims = list(grid_array.dims)[0:2]
-    # max_db = []
-    # for frequency in power_grid.freq.values:
-    #     s = power_grid \
-    #         .sel(freq=frequency) \
-    #         .where(power_grid.sel(freq=frequency) == power_grid.sel(freq=frequency).max(dim=xy_dims)
-    #                , drop=True).squeeze()
-    #     max_db.append(10 * np.log10(s))
-    # Maybe should convert powergrid to dB?
     return power_grid
 
 
@@ -175,14 +166,12 @@ def co_cross(grid_array: xr.DataArray) -> xr.DataArray:  # MISSING: 3 component 
     pol_rot = np.abs(pol_rot) / pol_rot
     v_co = v_co * pol_rot
     v_cross = v_cross * pol_rot
-    co_db = 20 * np.log10(np.abs(v_co / v_co.isel(np.abs(v_co).argmax(dim=[dim_x, dim_y]))))
-    cross_db = 20 * np.log10(np.abs(v_cross / v_co.isel(np.abs(v_co).argmax(dim=[dim_x, dim_y]))))
 
-    co_db.coords['pols'] = "co_db"
-    co_db.name = f'{grid_array.name}_db'
-    cross_db.coords['pols'] = "x_db"
-    dB_concat = xr.concat([co_db, cross_db], dim='pols')
-    # grid_processed = xr.merge([grid_array, dB_merge])
+    v_co.coords['comp'] = "v_co"
+    v_co.name = f'{grid_array.name}_co_x_pol'
+    v_cross.coords['comp'] = "v_x"
+    dB_concat = xr.concat([v_co, v_cross], dim='comp')
+    dB_concat = dB_concat.assign_attrs(grid_array.attrs)
     return dB_concat
 
 

@@ -6,7 +6,7 @@ from xarray import DataArray, Dataset
 import matplotlib.pyplot as plt
 
 from .labels import COMP_LABELS
-from .utils import check_grid_or_cut_type
+from .utils import *
 
 CUT_AXIS_LABELS = {
     # grid type: Name, Name, unit, unit, Longname, Longname
@@ -96,20 +96,6 @@ def readcut(file_name: str, data_name: str = None) -> xr.DataArray:  # FIX ICUT 
             ),
         )
     return da
-
-
-def decibel(cut_array: xr.DataArray) -> Dataset:
-    db_array = 20*np.log10(np.abs(cut_array))
-    db_array.name = "db"
-    db_array.attrs["units"] = "dB"
-    db_array.attrs["long_name"] = "Directivity"
-    db_array_normalised = 20*np.log10(np.abs(cut_array)/np.abs(cut_array.sel(comp='Co')).max(cut_array.dims[1]))
-    db_array_normalised.name = "db0"
-    db_array_normalised.attrs["units"] = "dB"
-    db_array_normalised.attrs["long_name"] = "Normalised directivity"
-    db_merged = xr.merge([db_array, db_array_normalised], combine_attrs="drop_conflicts")
-    db_merged = db_merged.assign_attrs(cut_array.attrs)
-    return db_merged
 
 
 def plotcut(cut_array: xr.DataArray) -> list[plt.Line2D]:
