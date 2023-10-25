@@ -39,18 +39,18 @@ def grid(file_names: List[str], data_name: str = None) -> xr.DataArray:
                 dat_list.append(xr.open_dataarray(file_name))
 
     if len(dat_list) > 1:
-        grid_data = xr.combine_by_coords(dat_list, combine_attrs="drop_conflicts")
+        grid_data = xr.concat(dat_list, dim="freq")
     else:
         grid_data = dat_list[0]
-    # for attr in ["filename", "source_field", "freq_name"]:
-    #     at_list = []
-    #     for ds in dat_list:
-    #         if isinstance(ds.attrs[attr], list):
-    #             at_list.extend(ds.attrs[attr])
-    #         else:
-    #             at_list.append(ds.attrs[attr])
-    #     self.data.attrs[attr] = at_list
-    #     self.data.attrs[attr] = at_list
+    for attr in ["filename", "source_field", "freq_name"]:
+        at_list = []
+        for ds in dat_list:
+            if isinstance(ds.attrs[attr], list):
+                at_list.extend(ds.attrs[attr])
+            else:
+                at_list.append(ds.attrs[attr])
+        grid_data.attrs[attr] = at_list
+        grid_data.attrs[attr] = at_list
     return grid_data
 
 
