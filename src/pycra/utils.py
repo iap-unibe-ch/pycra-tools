@@ -2,6 +2,7 @@ from .labels import CYLINDRICAL_ATTRIBUTES, SPHERICAL_ATTRIBUTES, PLANAR_OR_SURF
 import xarray as xr
 import numpy as np
 
+
 def check_grid_or_cut_type(icomp: int, ncomp: int, ival: int, ftype: str) -> [dict, str]:
     # Determining what type of cut or grid file is being processed
     if ival in CYLINDRICAL_ATTRIBUTES[2].keys():

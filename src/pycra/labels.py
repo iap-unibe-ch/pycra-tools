@@ -81,7 +81,7 @@ CYLINDRICAL_ATTRIBUTES = [
     }
 ]
 
-COMP_LABELS = {
+COMP_LABELS = { "spherical": {
     1: ["$E_\\theta$", "$E_\phi$", "$E_r$"],
     2: ["RHC", "LHC", "$E_r$"],
     3: ["Co", "Cross", "$E_r$"],
@@ -94,5 +94,26 @@ COMP_LABELS = {
     11: ["X Poynting", "Y Poynting", "Z Poynting"],
     51: ["$\sigma_{VV}$", "$\sigma_{VH}$"],
     52: ["$\sigma_{HH}$", "$\sigma_{HV}$"],
-    53: ["$\sigma_{VV}$", "$\sigma_{VH}$", "$\sigma_{HH}$", "$\sigma_{HV}$", "$\sigma_{T}$"],
+    53: ["$\sigma_{VV}$", "$\sigma_{VH}$", "$\sigma_{HH}$", "$\sigma_{HV}$", "$\sigma_{T}$"], },
+
+    "planar or surface": {
+    1: ["$E_\\theta$", "$E_\phi$", "$E_z$"],
+    2: ["RHC", "LHC", "$E_z$"],
+    3: ["Co", "Cross", "$E_z$"],
+    4: ["Major", "Minor", "$E_z$"],
+    5: ["$\\frac{E_\\theta}{E_\phi}$", "$\\frac{E_\phi}{E_\\theta}$", "$E_z$"],
+    6: ["$\\frac{RHC}{LHC}$", "$\\frac{LHC}{RHC}$", "$E_z$"],
+    7: ["$\\frac{Co}{Cross}$", "$\\frac{Cross}{Co}$", "$E_z$"],
+    8: ["$\\frac{major}{minor}$", "$\\frac{minor}{major}$", "$E_z$"],
+    9: ["Total Power", "$\sqrt{\\frac{RHC}{LHC}$", "$E_z$"],
+    11: ["X Poynting", "Y Poynting", "Z Poynting"], },
+
+    "cylindrical": {
+    2: ["RHC", "LHC", "${E_\phi}$"],
+    3: ["Co", "Cross", "${E_\phi}$"],
+    4: ["Major", "Minor", "${E_\phi}$"],
+    6: ["$\\frac{RHC}{LHC}$", "$\\frac{LHC}{RHC}$", "${E_\phi}$"],
+    7: ["$\\frac{Co}{Cross}$", "$\\frac{Cross}{Co}$", "${E_\phi}$"],
+    8: ["$\\frac{major}{minor}$", "$\\frac{minor}{major}$", "${E_\phi}$"],
+    9: ["Total Power", "$\sqrt{\\frac{RHC}{LHC}$", "${E_\phi}$"], },
 }

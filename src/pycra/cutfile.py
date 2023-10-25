@@ -82,7 +82,7 @@ def readcut(file_name: str, data_name: str = None) -> xr.DataArray:  # FIX ICUT 
             coords=[
                 (rot_name, cut_orientation, {"units": rot_unit, "long_name": rot_lname}),
                 (xname, np.linspace(v_ini, v_ini + (v_num - 1) * v_inc, v_num), {"units": xunit, "long_name": xlname}),
-                ("comp", COMP_LABELS[icomp][0:ncomp], {"long_name": "Field component"}),
+                ("comp", COMP_LABELS[cut_type][icomp][0:ncomp], {"long_name": "Field component"}),
                 ("freq", np.arange(0, no_of_frequencies))
             ],
             attrs=dict(

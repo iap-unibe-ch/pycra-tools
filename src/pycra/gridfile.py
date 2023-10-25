@@ -91,7 +91,7 @@ def readgrd(file_name: str, data_name: str = None) -> xr.DataArray:
             stpx = (x_limits[1] - x_limits[0]) / (nx - 1)
             stpy = (y_limits[1] - y_limits[0]) / (ny - 1)
 
-            matrix = np.full(shape=(ny, nx, ncomp), fill_value=np.nan, dtype=complex)
+            matrix = np.full(shape=(nx, ny, ncomp), fill_value=np.nan, dtype=complex)
 
             if klimit == 1:
                 for y in range(ny):
@@ -108,7 +108,7 @@ def readgrd(file_name: str, data_name: str = None) -> xr.DataArray:
                     for x in range(nx):
                         line = file_grid.readline().split()
                         for i in range(0, len(line), 2):
-                            matrix[y, x, i // 2] = complex(float(line[i]), float(line[i+1]))
+                            matrix[x, y, i // 2] = complex(float(line[i]), float(line[i+1]))
 
             else:
                 raise Exception(f"Unknown KLIMIT = {klimit}")
@@ -117,12 +117,12 @@ def readgrd(file_name: str, data_name: str = None) -> xr.DataArray:
             matrix4d = np.expand_dims(matrix, 3)
             da = xr.DataArray(
                 data=matrix4d,
-                dims=[yname, xname, "comp", "freq"],
+                dims=[xname, yname, "comp", "freq"],
                 name=data_name,
                 coords=[
                     (xname, np.linspace(x_limits[0], x_limits[1], nx), {"units": xunit, "long_name": xlname}),
                     (yname, np.linspace(y_limits[0], y_limits[1], ny), {"units": yunit, "long_name": ylname}),
-                    ("comp", COMP_LABELS[icomp][0:ncomp], {"long_name": "Field component"}),
+                    ("comp", COMP_LABELS[grid_type][icomp][0:ncomp], {"long_name": "Field component"}),
                     ("freq", [frequency], {"unit": "GHz"})
                 ],
                 attrs=dict(
