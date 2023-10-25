@@ -91,7 +91,8 @@ def readgrd(file_name: str, data_name: str = None) -> xr.DataArray:
             stpx = (x_limits[1] - x_limits[0]) / (nx - 1)
             stpy = (y_limits[1] - y_limits[0]) / (ny - 1)
 
-            matrix = np.full(shape=(nx, ny, ncomp), fill_value=np.nan, dtype=complex)
+            # Xarray is stupid and default plots the second dimension as x and the first as y
+            matrix = np.full(shape=(ny, nx, ncomp), fill_value=np.nan, dtype=complex)
 
             if klimit == 1:
                 for y in range(ny):
@@ -108,20 +109,19 @@ def readgrd(file_name: str, data_name: str = None) -> xr.DataArray:
                     for x in range(nx):
                         line = file_grid.readline().split()
                         for i in range(0, len(line), 2):
-                            matrix[x, y, i // 2] = complex(float(line[i]), float(line[i+1]))
+                            matrix[y, x, i // 2] = complex(float(line[i]), float(line[i+1]))
 
             else:
                 raise Exception(f"Unknown KLIMIT = {klimit}")
 
-
             matrix4d = np.expand_dims(matrix, 3)
             da = xr.DataArray(
                 data=matrix4d,
-                dims=[xname, yname, "comp", "freq"],
+                dims=[yname, xname, "comp", "freq"],
                 name=data_name,
                 coords=[
-                    (xname, np.linspace(x_limits[0], x_limits[1], nx), {"units": xunit, "long_name": xlname}),
                     (yname, np.linspace(y_limits[0], y_limits[1], ny), {"units": yunit, "long_name": ylname}),
+                    (xname, np.linspace(x_limits[0], x_limits[1], nx), {"units": xunit, "long_name": xlname}),
                     ("comp", COMP_LABELS[grid_type][icomp][0:ncomp], {"long_name": "Field component"}),
                     ("freq", [frequency], {"unit": "GHz"})
                 ],
@@ -150,10 +150,10 @@ def power(grid_array: xr.DataArray) -> xr.DataArray:
 
 
 def co_cross(grid_array: xr.DataArray) -> xr.DataArray:  # MISSING: 3 component processing
-    dim_x, dim_y = grid_array.dims[0:2]
+    dim_y, dim_x = grid_array.dims[0:2]
     power = np.abs(grid_array) ** 2
     power = power.sum(dim="comp")
-    max_val = power.argmax([dim_x, dim_y])
+    max_val = power.argmax([dim_y, dim_x])
     complex_E = grid_array.isel(comp=0)
     complex_H = grid_array.isel(comp=1)
     x_max_val = complex_E.isel(max_val)
@@ -162,7 +162,7 @@ def co_cross(grid_array: xr.DataArray) -> xr.DataArray:  # MISSING: 3 component 
     v_co = complex_E * np.sin(r) + complex_H * np.cos(r)
     v_cross = complex_E * np.cos(r) - complex_H * np.sin(r)
     # normalise main beam phase to 0 deg wtf does this do
-    pol_rot = v_co.isel(np.abs(v_co).argmax(dim=[dim_x, dim_y]))
+    pol_rot = v_co.isel(np.abs(v_co).argmax(dim=[dim_y, dim_x]))
     # fun fact np.max only looks at real part. MATLAB max looks at abs. value
     pol_rot = np.abs(pol_rot) / pol_rot
     v_co = v_co * pol_rot
