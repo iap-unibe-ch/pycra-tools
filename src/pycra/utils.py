@@ -68,7 +68,6 @@ def decibel(array: xr.DataArray) -> xr.DataArray:
             max_vals.append(mval.values.tolist())
     else:
         max_vals = db_array.max(dim=db_array.dims[0:2])
-        db_array = db_array - max_vals.max()
         max_vals = max_vals.values.tolist()
     db_array.name = f'{array.name}_dB'
     db_array.attrs["units"] = "dB"
