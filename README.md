@@ -34,11 +34,11 @@ import os
 os.chdir("/path/to/your/data")
 # Import can handle multiple files, so if you're importing a single file still put it in a list
 mycut = cut(["filename.cut"])
-# Converting the complex data into dB data
+# Converting the complex data into dB data and overwriting the old complex data with db data
 mycut = decibel(mycut)
 # Plotting the db data variable from "mycut". Since the db has too many dimensions we need to slice it.
 # Here we choose only the co-polar component. 
-plotcut(mycut.db.sel(comp="Co"))
+plotcut(mycut.sel(comp="Co"))
 ```
 
 For gridfiles:
@@ -49,9 +49,9 @@ import os
 os.chdir("/path/to/your/data")
 # Import can handle multiple files, so if you're importing a single file still put it in a list
 mygrid = grid(["filename.cut"])
-# Converting the complex data into dB data
+# Converting the complex data into dB data and overwriting the old complex data with db data
 mygrid = co_cross(mygrid)
 # Plotting the db data variable from "mygrid". Since the db has too many dimensions we need to slice it.
 # Here we choose only the co-polar component. 
-plotgrid(mygrid.db.sel(comp="Co"))
+plotgrid(mygrid.sel(comp="Co"))
 ```
