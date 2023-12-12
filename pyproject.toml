@@ -14,7 +14,7 @@ authors = [
     { email = "roland.albers@unibe.ch", name = "Roland Albers" },
 ]
 dynamic = ["version"]
-dependencies = ["xarray","matplotlib","numpy"]
+dependencies = ["xarray","matplotlib","numpy","PyQt5"]
 
 [tool.hatch.version]
 source = "vcs"
