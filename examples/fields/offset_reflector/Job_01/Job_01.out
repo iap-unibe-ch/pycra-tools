@@ -1,0 +1,1348 @@
+ Program started at 11:40:42 on 21 January 2025
+ 
+ 
+ 
+                                     T I C R A   T o o l s
+                                     =====================
+ 
+  Antenna design software from TICRA
+ 
+ TICRA Tools 23.1 (Linux amd64/em64t 64-bit)
+ 
+ 
+ TICRA Tools found  12 CPU threads
+ 
+ Enabled products: ESTEAM, GRASP
+  Reading tor-file: Job_01.tor
+ 
+ 
+  *** Object name:  single_global_coor
+  *** Class name :  coor_sys
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  single_global_coor
+  *** Class name :  coor_sys
+  *** Message    :  New values in object
+ 
+  Z_axis :     0.000000    0.000000    1.000000
+ 
+ 
+  *** Object name:  single_surface
+  *** Class name :  paraboloid
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  single_surface
+  *** Class name :  surface
+  *** Message    :  New values in object
+ 
+ 
+  Focal length     :   0.372000 m
+   and in SI units :   0.372000 meter
+ 
+ 
+  *** Object name:  single_rim
+  *** Class name :  elliptical_rim
+  *** Message    :  Object created
+ 
+  The rim centre is placed at
+    x :   0.171766 m
+    y :    0.00000 m
+  and in SI units
+    x :   0.171766     meter
+    y :    0.00000     meter
+ 
+  The half axes of the ellipse are defined by
+    in x-direction :   0.300000 m
+    in y-direction :   0.300000 m
+  and in SI units
+    in x-direction :   0.300000     meter
+    in y-direction :   0.300000     meter
+ 
+  The rim limits in radii are
+    minimum :   0.300000     meter
+    maximum :   0.300000     meter
+ 
+  The rim limits in x direction are
+    minimum :  -0.128234     meter
+    maximum :   0.471766     meter
+ 
+  The rim limits in y direction are
+    minimum :  -0.300000     meter
+    maximum :   0.300000     meter
+ 
+ 
+  *** Object name:  single_reflector
+  *** Class name :  reflector
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  single_reflector
+  *** Class name :  reflector
+  *** Message    :  New values in object
+ 
+  Coordinate system: single_global_coor
+  Rim: single_rim
+  Surface No.    1 : single_surface
+ 
+ 
+  *** Object name:  single_feed_coor
+  *** Class name :  coor_sys
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  single_feed_coor
+  *** Class name :  coor_sys
+  *** Message    :  New values in object
+ 
+  Origin :   0.000000E+00 m     0.000000E+00 m     0.372000E+00 m
+  Base name : single_global_coor
+  X_axis :     0.898794    0.000000    0.438372
+  Y_axis :     0.000000   -1.000000    0.000000
+  Z_axis :     0.438372    0.000000   -0.898794
+ 
+ 
+  *** Object name:  single_feed
+  *** Class name :  gaussian_beam_pattern
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  single_feed
+  *** Class name :  gaussian_beam_pattern
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  single_feed
+  *** Class name :  gaussian_beam_pattern
+  *** Message    :  New values in object
+ 
+  Frequency : wavelength_range
+  Coor_sys : single_feed_coor
+ 
+ 
+  *** Object name:  single_feed
+  *** Class name :  gaussian_beam_pattern
+  *** Message    :  Definition of common feed attributes
+ 
+ 
+  Taper angle :   42.1578 degrees
+ 
+  Taper compared to on-axis level :  -12.0000 dB
+ 
+ 
+  *** Object name:  single_feed
+  *** Class name :  gaussian_beam_pattern
+  *** Message    :  Definition of gaussian feed
+ 
+ 
+  The imaginary displacement along the negative z-axis
+    is 0.764725 wavelengths
+ 
+  The beam waist radius is 0.493376 wavelengths
+ 
+ 
+  *** Object name:  single_cut_coor
+  *** Class name :  coor_sys
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  single_cut_coor
+  *** Class name :  coor_sys
+  *** Message    :  New values in object
+ 
+  Origin :   0.171766E+00 m     0.000000E+00 m     0.198277E-01 m
+  Base name : single_global_coor
+  Z_axis :     0.000000    0.000000    1.000000
+ 
+ 
+  *** Object name:  spherical_grid_farfield_thetaphi_E
+  *** Class name :  spherical_grid
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  spherical_grid_farfield_thetaphi_E
+  *** Class name :  spherical_grid
+  *** Message    :  New values in object
+ 
+  Frequency : wavelength_range
+  File name : spherical_grid_farfield_thetaphi_E.grd
+  Coor_sys : single_cut_coor
+  Grid type : theta_phi
+ 
+ 
+  *** Object name:  d1
+  *** Class name :  real_variable
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  d1
+  *** Class name :  real_variable
+  *** Message    :  New values in object
+ 
+ 
+ 
+  *** Object name:  coor_sys_strut
+  *** Class name :  coor_sys
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  coor_sys_strut
+  *** Class name :  coor_sys
+  *** Message    :  New values in object
+ 
+  Origin :  -0.882338E-01 m     0.000000E+00 m     0.000000E+00 m
+  Z_axis :     0.000000    0.000000    1.000000
+ 
+ 
+  *** Object name:  polygonal_struts
+  *** Class name :  polygonal_struts
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  polygonal_struts
+  *** Class name :  polygonal_struts
+  *** Message    :  New values in object
+ 
+ 
+  Number of points defining cross-section :    4
+ 
+  Corner points of cross-section          :
+     No.         x                  y
+      1   0.100000E+01 cm    0.250000E+01 cm
+      2   0.100000E+01 cm   -0.250000E+01 cm
+      3  -0.100000E+01 cm   -0.250000E+01 cm
+      4  -0.100000E+01 cm    0.250000E+01 cm
+  and in SI units
+     No.         x                  y
+      1   0.100000E-01 m     0.250000E-01 m
+      2   0.100000E-01 m    -0.250000E-01 m
+      3  -0.100000E-01 m    -0.250000E-01 m
+      4  -0.100000E-01 m     0.250000E-01 m
+ 
+   Corner points of polygon defined : clockwise
+ 
+  Number of struts :    1
+ 
+  Data for position of struts no :    1
+    Coordinate system: coor_sys_strut
+    End points       :   0.000000E+00 m     0.369485E+00 m
+    and in SI units  :   0.000000E+00       0.369485E+00
+ 
+ 
+  *** Object name:  strut_analysis_arbitrary_cross
+  *** Class name :  strut_analysis_arbitrary_cross
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  strut_analysis_arbitrary_cross
+  *** Class name :  strut_analysis_arbitrary_cross
+  *** Message    :  New values in object
+ 
+  Frequency : wavelength_range
+  Scatterer : polygonal_struts
+ 
+ 
+  *** Object name:  spherical_cut_farfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  spherical_cut_farfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  New values in object
+ 
+  Frequency : wavelength_range
+  Coor_sys : single_cut_coor
+  Phi range : start   0.00000    end  90.00000    points     3
+ 
+ 
+  *** Object name:  coor_sys_stut4feed
+  *** Class name :  coor_sys
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  coor_sys_stut4feed
+  *** Class name :  coor_sys
+  *** Message    :  New values in object
+ 
+  Base name : single_feed_coor
+  Z_axis :     0.000000    0.000000    1.000000
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  New values in object
+ 
+  Frequency : wavelength_range
+  Coor_sys : single_cut_coor
+  Near_far :near
+  Phi range : start   0.00000    end  90.00000    points     3
+  Near_dist :  0.100000E+01 m
+ 
+ 
+  *** Object name:  single_po
+  *** Class name :  po_single_face_scatterer
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  single_po
+  *** Class name :  po_single_face_scatterer
+  *** Message    :  New values in object
+ 
+  Frequency : wavelength_range
+  Scatterer : single_reflector
+  Spillover : on
+  Coordinate system : single_global_coor
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_H
+  *** Class name :  spherical_cut
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_H
+  *** Class name :  spherical_cut
+  *** Message    :  New values in object
+ 
+  Frequency : wavelength_range
+  Coor_sys : single_cut_coor
+  Near_far :near
+  E_H : h_field
+  Phi range : start   0.00000    end  90.00000    points     3
+  Near_dist :  0.100000E+01 m
+ 
+ 
+  *** Object name:  Nx_planar_grid
+  *** Class name :  real_variable
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  Nx_planar_grid
+  *** Class name :  real_variable
+  *** Message    :  New values in object
+ 
+ 
+ 
+  *** Object name:  N_spherical_grid_phi
+  *** Class name :  real_variable
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  N_spherical_grid_phi
+  *** Class name :  real_variable
+  *** Message    :  New values in object
+ 
+ 
+ 
+  *** Object name:  spherical_grid_farfield_thetaphi_E
+  *** Class name :  spherical_grid
+  *** Message    :  New values in object
+ 
+  X range : start   0.00000    end 337.50000    points    16
+ 
+ 
+  *** Object name:  N_spherical_cut
+  *** Class name :  real_variable
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  N_spherical_cut
+  *** Class name :  real_variable
+  *** Message    :  New values in object
+ 
+ 
+ 
+  *** Object name:  spherical_cut_farfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  New values in object
+ 
+  Theta range : start   0.00000    end 180.00000    points    31
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  New values in object
+ 
+  Theta range : start   0.00000    end 180.00000    points    31
+  Near_dist :  0.100000E+01 m
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_H
+  *** Class name :  spherical_cut
+  *** Message    :  New values in object
+ 
+  Theta range : start-180.00000    end 180.00000    points    31
+  Near_dist :  0.100000E+01 m
+ 
+ 
+  *** Object name:  N_spherical_grid_theta
+  *** Class name :  real_variable
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  N_spherical_grid_theta
+  *** Class name :  real_variable
+  *** Message    :  New values in object
+ 
+ 
+ 
+  *** Object name:  spherical_grid_farfield_thetaphi_E
+  *** Class name :  spherical_grid
+  *** Message    :  New values in object
+ 
+  X range : start   0.00000    end 337.50000    points    16
+  Y range : start   0.00000    end  90.00000    points    21
+ 
+ 
+  *** Object name:  Ny_planar_grid
+  *** Class name :  real_variable
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  Ny_planar_grid
+  *** Class name :  real_variable
+  *** Message    :  New values in object
+ 
+ 
+ 
+  *** Object name:  spherical_grid_nearfield_uv_H
+  *** Class name :  spherical_grid
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  spherical_grid_nearfield_uv_H
+  *** Class name :  spherical_grid
+  *** Message    :  New values in object
+ 
+  Frequency : wavelength_range
+  Coor_sys : single_cut_coor
+  Near_far :near
+  E_H : h_field
+  X range : start  -0.70711    end   0.70711    points    11
+  Y range : start  -0.70711    end   0.70711    points    13
+  Near_dist :  0.100000E+01 m
+ 
+ 
+  *** Object name:  planar_grid_nearfield_front_01_poynting
+  *** Class name :  planar_grid
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  planar_grid_nearfield_front_01_poynting
+  *** Class name :  planar_grid
+  *** Message    :  New values in object
+ 
+  Frequency : wavelength_range
+  Coor_sys : single_cut_coor
+  Polarisation : poynting
+  X range : start -0.150000E+01    end  0.150000E+01    points    11
+  Unit of grid limits : m
+  Y range : start -0.150000E+01    end  0.150000E+01    points    15
+  Near_dist :  0.100000E+01 m
+ 
+ 
+  *** Object name:  rectangular_plate
+  *** Class name :  rectangular_plate
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  rectangular_plate
+  *** Class name :  rectangular_plate
+  *** Message    :  New values in object
+ 
+  Coordinate system: coor_sys_rectangular_plate
+  Corner 1 :  -0.100000E+01 m    -0.100000E+01 m     0.200000E+01 m
+  Corner 2 :  -0.100000E+01 m     0.100000E+01 m     0.200000E+01 m
+  Opposite point :   0.100000E+01 m    -0.100000E+01 m     0.200000E+01 m
+ 
+  Derived plate coordinate system
+    origin:   -0.100000E+01  -0.100000E+01   0.200000E+01
+    vec_1:     0.000000E+00   0.200000E+01   0.000000E+00
+      with length in x:    0.200000E+01
+    vec_2:     0.200000E+01   0.000000E+00   0.000000E+00
+      with length in y:    0.200000E+01
+    x-axis:    0.000000E+00   0.100000E+01   0.000000E+00
+    y-axis:    0.100000E+01   0.000000E+00   0.000000E+00
+    normal:    0.000000E+00   0.000000E+00  -0.100000E+01
+ 
+ 
+  *** Object name:  surface_grid_I
+  *** Class name :  surface_grid
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  surface_grid_I
+  *** Class name :  surface_grid
+  *** Message    :  New values in object
+ 
+  Frequency : wavelength_range
+  Scatterer : rectangular_plate
+  Field_type : currents
+  X_range : start  0.000000E+00    end  0.100000E+01    points     5
+  Unit of grid limits : m
+  Y_range : start  0.000000E+00    end  0.500000E+00    points     7
+ 
+ 
+  *** Object name:  coor_sys_rectangular_plate
+  *** Class name :  coor_sys
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  coor_sys_rectangular_plate
+  *** Class name :  coor_sys
+  *** Message    :  New values in object
+ 
+  Base name : single_cut_coor
+  Z_axis :     0.000000    0.000000    1.000000
+ 
+ 
+  *** Object name:  strut_analysis_arbitrary_cross_01
+  *** Class name :  strut_analysis_arbitrary_cross
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  strut_analysis_arbitrary_cross_01
+  *** Class name :  strut_analysis_arbitrary_cross
+  *** Message    :  New values in object
+ 
+  Frequency : wavelength_range
+  Scatterer : polygonal_struts
+ 
+ 
+  *** Object name:  wavelength_range
+  *** Class name :  wavelength_range
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  wavelength_range
+  *** Class name :  wavelength_range
+  *** Message    :  New values in object
+ 
+ 
+  The wavelength range is defined by:
+    Start wavelength: 3.000000000000000E-002 m
+    End   wavelength: 3.000000000000000E-002 m
+    Number of wavelengths: 1
+ 
+ 
+  *** Object name:  surface_grid_Hr
+  *** Class name :  surface_grid
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  surface_grid_Hr
+  *** Class name :  surface_grid
+  *** Message    :  New values in object
+ 
+  Frequency : wavelength_range
+  Scatterer : rectangular_plate
+  Polarisation : circular
+  Field_type : reflected_h_field
+  X_range : start  0.000000E+00    end  0.100000E+01    points     5
+  Unit of grid limits : m
+  Y_range : start  0.000000E+00    end  0.500000E+00    points     7
+ 
+ 
+  *** Object name:  view_1
+  *** Class name :  view
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  view_1
+  *** Class name :  view
+  *** Message    :  New values in object
+ 
+ 
+  Number of objects :     10
+ 
+  Definition of objects   :
+   No.  Name
+     1  view_1_coor_sys_plot
+     2  view_1_reflector_plot
+     3  view_1_feed_plot
+     4  view_1_output_points_plot
+     5  polygonal_struts_plot_for_view_1
+     6  reflector_plot_for_single_reflector_for_view_1
+     7  rays_from_point_sources
+     8  output_points_plot_for_spherical_cut_nearfield_E_for_view_1
+     9  coor_sys_plot_for_single_cut_coor_for_view_1
+    10  plate_plot_for_view_1
+ 
+ 
+ 
+  *** Object name:  view_1_coor_sys_plot
+  *** Class name :  coor_sys_plot
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  view_1_coor_sys_plot
+  *** Class name :  coor_sys_plot
+  *** Message    :  Definition of coor_sys_plot
+ 
+ 
+ 
+  *** Object name:  view_1_feed_plot
+  *** Class name :  feed_plot
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  view_1_feed_plot
+  *** Class name :  feed_plot
+  *** Message    :  Definition of feed_plot
+ 
+ 
+ 
+  *** Object name:  view_1_output_points_plot
+  *** Class name :  output_points_plot
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  view_1_output_points_plot
+  *** Class name :  output_points_plot
+  *** Message    :  Definition of output_points_plot
+ 
+ 
+  Distance for far field plot :    7.00000 m
+   and in SI units            :    7.00000 meter
+ 
+ 
+  *** Object name:  view_1_reflector_plot
+  *** Class name :  reflector_plot
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  view_1_reflector_plot
+  *** Class name :  reflector_plot
+  *** Message    :  Definition of reflector_plot
+ 
+ 
+ 
+  *** Object name:  reflector_plot_for_single_reflector_for_view_1
+  *** Class name :  reflector_plot
+  *** Message    :  Object created
+ 
+  Colour (RGB) :     0.721569    0.450980    0.200000
+ 
+ 
+  *** Object name:  reflector_plot_for_single_reflector_for_view_1
+  *** Class name :  reflector_plot
+  *** Message    :  Definition of reflector_plot
+ 
+ 
+  number of reflectors to be plotted :    1
+ 
+    No.  Plot objects
+     1   single_reflector
+ 
+ 
+  *** Object name:  polygonal_struts_plot_for_view_1
+  *** Class name :  polygonal_struts_plot
+  *** Message    :  Object created
+ 
+  Colour (RGB) :     0.721569    0.450980    0.200000
+ 
+ 
+  *** Object name:  polygonal_struts_plot_for_view_1
+  *** Class name :  polygonal_struts_plot
+  *** Message    :  Definition of polygonal_struts_plot
+ 
+ 
+ 
+  *** Object name:  rays_from_point_sources
+  *** Class name :  rays_from_point_sources
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  rays_from_point_sources
+  *** Class name :  rays_from_point_sources
+  *** Message    :  Definition of ray_plot
+ 
+ 
+  Theta range : start -10.00000    end  10.00000    points     3
+ 
+  Phi range : start  90.00000    end  90.00000    points     1
+ 
+  Ray path range :
+  Start:    0.00000 m
+  End  :    2.00000 m
+   and in SI units
+  Start:    0.00000     meter
+  End  :    2.00000     meter
+ 
+  number of objects: 1
+ 
+    No.  Plot objects
+     1   single_feed
+ 
+ 
+  *** Object name:  output_points_plot_for_spherical_cut_nearfield_E_for_view_1
+  *** Class name :  output_points_plot
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  output_points_plot_for_spherical_cut_nearfield_E_for_view_1
+  *** Class name :  output_points_plot
+  *** Message    :  Definition of output_points_plot
+ 
+ 
+  number of output objects to be plotted :    1
+ 
+    No.  Plot objects
+     1   spherical_cut_nearfield_E
+  Colour (RGB) :     0.239216    0.219608    0.274510
+ 
+ 
+  *** Object name:  coor_sys_plot_for_single_cut_coor_for_view_1
+  *** Class name :  coor_sys_plot
+  *** Message    :  Object created
+ 
+ 
+ 
+  *** Object name:  coor_sys_plot_for_single_cut_coor_for_view_1
+  *** Class name :  coor_sys_plot
+  *** Message    :  Definition of coor_sys_plot
+ 
+ 
+  Length of coordinate system axis :   0.400000 m
+   and in SI units                 :   0.400000 meter
+ 
+  number of coordinate systems to be plotted :    1
+ 
+    No.  Plot objects
+     1   single_cut_coor
+ 
+ 
+  *** Object name:  plate_plot_for_view_1
+  *** Class name :  plate_plot
+  *** Message    :  Object created
+ 
+  Colour (RGB) :     0.721569    0.450980    0.200000
+ 
+ 
+  *** Object name:  plate_plot_for_view_1
+  *** Class name :  plate_plot
+  *** Message    :  Definition of parallelogram_plot
+ 
+ ----- Call Function: analysis -----
+ 
+ ----- TASK No. 1 -----     Started at 11:40:52 on January 21, 2025
+ strut_analysis_arbitrary_cross get_currents ( source :
+ sequence(ref(single_feed)), auto_convergence_of_po : on,
+ convergence_on_scatterer : sequence(ref(single_reflector)),
+ convergence_on_output_grid :
+ sequence(ref(spherical_cut_farfield_E),ref(spherical_cut_nearfield_E)))
+ 
+ 
+  *** Object name:  strut_analysis_arbitrary_cross
+  *** Class name :  strut_analysis_arbitrary_cross
+  *** Message    :  Get_currents message received
+ 
+  Source : single_feed
+  PO-auto-convergence selection : on
+  Convergence test on scatterer object : single_reflector
+  Convergence test on output grid : spherical_cut_farfield_E
+  Convergence test on output grid : spherical_cut_nearfield_E
+ 
+ 
+  *** Object name:  strut_analysis_arbitrary_cross
+  *** Class name :  strut_analysis_arbitrary_cross
+  *** Message    :  Initialization
+ 
+ 
+ Get currents
+ 
+  Auto-convergence with desired accuracy of -80.00 dB.
+ 
+  Face 1:
+  Max. values: po1/po2 = 430/50
+ 
+ PO convergence
+  Test-grid  Ref-grid    Freq  Beam  Grid       P_max   P_level  Accuracy
+    po1/po2   po1/po2                           [dBi]     [dBi]      [dB]
+       20/0      10/0       1     1     1      -31.96    -31.96      1.28
+       20/0      10/0       1     1     2        2.94      2.94      5.24
+       20/0      10/0       1     1     3      -46.33    -46.33      5.90
+       40/0      20/0       1     1     1      -36.70    -36.70     -6.95
+       40/0      20/0       1     1     2        1.38      1.38      0.11
+       40/0      20/0       1     1     3      -46.57    -46.57      0.09
+       80/0      40/0       1     1     1      -38.97    -38.97    -28.90
+       80/0      40/0       1     1     2       -5.08     -5.08    -29.94
+       80/0      40/0       1     1     3      -53.28    -53.28    -27.18
+      160/0      80/0       1     1     1      -38.97    -38.97    -86.45  *
+      160/0      80/0       1     1     2       -5.08     -5.08   -106.32  *
+      160/0      80/0       1     1     3      -53.28    -53.28   -104.43  *
+       60/0     160/0       1     1     1      -38.97    -38.97    -56.77
+       60/0     160/0       1     1     2       -5.08     -5.08   -102.88  *
+       60/0     160/0       1     1     3      -53.28    -53.28   -103.56  *
+       70/0     160/0       1     1     1      -38.97    -38.97    -69.27
+       75/0     160/0       1     1     1      -38.97    -38.97    -78.04
+       78/0     160/0       1     1     1      -38.97    -38.97    -81.57  *
+       77/0     160/0       1     1     1      -38.97    -38.97    -79.67
+       77/0     160/0       1     1     2       -5.08     -5.08   -106.36  *
+       77/0     160/0       1     1     3      -53.28    -53.28   -104.69  *
+  PO1 =        78 PO2 =         0 Face =     1,    Final PO-values from auto-convergence
+ 
+ ----- TASK No. 2 -----     Started at 11:40:53 on January 21, 2025
+ single_po get_currents ( source :
+ sequence(ref(single_feed),ref(strut_analysis_arbitrary_cross)),
+ auto_convergence_of_po : on, convergence_on_output_grid :
+ sequence(ref(spherical_cut_farfield_E),ref(spherical_cut_nearfield_E)))
+ 
+ 
+  *** Object name:  single_po
+  *** Class name :  po_single_face_scatterer
+  *** Message    :  Get_currents message received
+ 
+  Source : single_feed
+  Source : strut_analysis_arbitrary_cross
+  PO-auto-convergence selection : on
+  Convergence test on output grid : spherical_cut_farfield_E
+  Convergence test on output grid : spherical_cut_nearfield_E
+ 
+ 
+  *** Object name:  single_po
+  *** Class name :  po_single_face_scatterer
+  *** Message    :  Initialization
+ 
+ 
+ Get currents
+ 
+  Auto-convergence with desired accuracy of -80.00 dB.
+ 
+  Face 1:
+  Max. values: po1/po2 = 660/1600
+ 
+ PO convergence
+  Test-grid  Ref-grid    Freq  Beam  Grid       P_max   P_level  Accuracy
+    po1/po2   po1/po2                           [dBi]     [dBi]      [dB]
+      20/10     10/10       1     1     1       34.75     34.75    -14.38
+      20/10     10/10       1     1     2      -23.57    -23.57     -3.35
+      40/10     20/10       1     1     1       34.76     34.76    -25.63
+      40/10     20/10       1     1     2      -23.72    -23.72    -12.47
+      80/10     40/10       1     1     1       34.76     34.76    -70.48
+      80/10     40/10       1     1     2      -23.67    -23.67    -58.49
+     160/10     80/10       1     1     1       34.76     34.76    -74.12
+     160/10     80/10       1     1     2      -23.67    -23.67    -62.26
+     320/10    160/10       1     1     1       34.76     34.76    -84.23  *
+     320/10    160/10       1     1     2      -23.67    -23.67    -73.35
+     640/10    320/10       1     1     2      -23.67    -23.67    -78.71
+     660/10    640/10       1     1     2      -23.67    -23.67    -90.98  *
+     480/10    660/10       1     1     2      -23.67    -23.67    -85.82  *
+     400/10    660/10       1     1     2      -23.67    -23.67    -83.05  *
+     360/10    660/10       1     1     2      -23.67    -23.67    -82.94  *
+     340/10    660/10       1     1     2      -23.67    -23.67    -80.62  *
+     330/10    660/10       1     1     2      -23.67    -23.67    -80.49  *
+ 
+ PO convergence
+  Test-grid  Ref-grid    Freq  Beam  Grid       P_max   P_level  Accuracy
+    po1/po2   po1/po2                           [dBi]     [dBi]      [dB]
+      10/20     10/10       1     1     1       34.75     34.76    -11.66
+      10/20     10/10       1     1     2      -23.57    -23.57     -0.15
+      10/40     10/20       1     1     1       34.86     34.86    -14.23
+      10/40     10/20       1     1     2      -23.66    -23.66     -4.09
+      10/80     10/40       1     1     1       34.77     34.77    -18.10
+      10/80     10/40       1     1     2      -23.78    -23.67     -6.74
+     10/160     10/80       1     1     1       34.80     34.80    -50.55
+     10/160     10/80       1     1     2      -23.73    -23.67    -40.10
+     10/320    10/160       1     1     1       34.82     34.82    -63.26
+     10/320    10/160       1     1     2      -23.70    -23.67    -51.63
+     10/640    10/320       1     1     1       34.81     34.81    -61.38
+     10/640    10/320       1     1     2      -23.70    -23.67    -50.00
+    10/1280    10/640       1     1     1       34.82     34.82    -64.22
+    10/1280    10/640       1     1     2      -23.70    -23.67    -52.93
+    10/1600   10/1280       1     1     1       34.82     34.82    -70.51
+    10/1600   10/1280       1     1     2      -23.71    -23.67    -59.27
+    10/2560   10/1600       1     1     1       34.82     34.82    -72.75
+    10/2560   10/1600       1     1     2      -23.70    -23.67    -61.50
+  PO1 =        10 PO2 =      1600 Face =     1,    Grid limit reached (acc: -61 dB).
+  PO1 =       330 PO2 =      1600 Face =     1,    Final PO-values from auto-convergence
+ 
+  Edge 1:
+  Max. value: ptd = 1600
+ 
+ PO convergence
+  Test-grid  Ref-grid    Freq  Beam  Grid       P_max   P_level  Accuracy
+        ptd       ptd                           [dBi]     [dBi]      [dB]
+         20        10       1     1     1      -14.06     34.76    -50.99
+         20        10       1     1     2      -60.53    -23.67    -40.10
+         40        20       1     1     1      -16.13     34.76    -51.13
+         40        20       1     1     2      -62.50    -23.67    -39.97
+         80        40       1     1     1      -16.22     34.76    -55.85
+         80        40       1     1     2      -67.09    -23.67    -44.14
+        160        80       1     1     1      -16.14     34.76    -84.66  *
+        160        80       1     1     2      -67.26    -23.67    -74.51
+        320       160       1     1     2      -67.26    -23.67    -89.06  *
+        120       320       1     1     2      -67.26    -23.67    -76.72
+        140       320       1     1     2      -67.26    -23.67    -78.31
+        150       320       1     1     2      -67.26    -23.67    -86.60  *
+        145       320       1     1     2      -67.26    -23.67    -85.20  *
+        143       320       1     1     2      -67.26    -23.67    -90.52  *
+  PTD =       143                 Edge =     1,    Final PTD-values from auto-convergence
+ 
+ 
+  Relative power hitting scatterer:    0.936284
+  Spillover: 0.2859 dB
+ ----- Call Function: fields01_get_fields_from_reflector -----
+ 
+ ----- TASK No. 3 -----     Started at 11:40:56 on January 21, 2025
+ spherical_cut_farfield_E get_field ( source : sequence(ref(single_po)))
+ 
+ 
+  *** Object name:  spherical_cut_farfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Get_field message received
+ 
+  Source : single_po
+ 
+ 
+  *** Object name:  spherical_cut_farfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 4 -----     Started at 11:40:56 on January 21, 2025
+ spherical_cut_nearfield_E get_field ( source : sequence(ref(single_po)))
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Get_field message received
+ 
+  Source : single_po
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 5 -----     Started at 11:40:56 on January 21, 2025
+ spherical_cut_nearfield_H get_field ( source : sequence(ref(single_po)))
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_H
+  *** Class name :  spherical_cut
+  *** Message    :  Get_field message received
+ 
+  Source : single_po
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_H
+  *** Class name :  spherical_cut
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 6 -----     Started at 11:40:56 on January 21, 2025
+ spherical_grid_farfield_thetaphi_E get_field ( source :
+ sequence(ref(single_po)))
+ 
+ 
+  *** Object name:  spherical_grid_farfield_thetaphi_E
+  *** Class name :  spherical_grid
+  *** Message    :  Get_field message received
+ 
+  Source : single_po
+ 
+ 
+  *** Object name:  spherical_grid_farfield_thetaphi_E
+  *** Class name :  spherical_grid
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 7 -----     Started at 11:40:56 on January 21, 2025
+ spherical_grid_nearfield_uv_H get_field ( source : sequence(ref(single_po)))
+ 
+ 
+  *** Object name:  spherical_grid_nearfield_uv_H
+  *** Class name :  spherical_grid
+  *** Message    :  Get_field message received
+ 
+  Source : single_po
+ 
+ 
+  *** Object name:  spherical_grid_nearfield_uv_H
+  *** Class name :  spherical_grid
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ ----- End of Function: fields01_get_fields_from_reflector -----
+ ----- Call Function: fields02_add_fields_from_strut_and_feed -----
+ 
+ ----- TASK No. 8 -----     Started at 11:40:56 on January 21, 2025
+ spherical_cut_farfield_E add_field ( source :
+ sequence(ref(strut_analysis_arbitrary_cross),ref(single_feed)))
+ 
+ 
+  *** Object name:  spherical_cut_farfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Add_field message received
+ 
+  Source : strut_analysis_arbitrary_cross
+  Source : single_feed
+ 
+ 
+  *** Object name:  spherical_cut_farfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ 
+  *** Object name:  spherical_cut_farfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 9 -----     Started at 11:40:56 on January 21, 2025
+ spherical_cut_nearfield_E add_field ( source :
+ sequence(ref(strut_analysis_arbitrary_cross),ref(single_feed)))
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Add_field message received
+ 
+  Source : strut_analysis_arbitrary_cross
+  Source : single_feed
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 10 -----     Started at 11:40:56 on January 21, 2025
+ spherical_cut_nearfield_H add_field ( source :
+ sequence(ref(strut_analysis_arbitrary_cross),ref(single_feed)))
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_H
+  *** Class name :  spherical_cut
+  *** Message    :  Add_field message received
+ 
+  Source : strut_analysis_arbitrary_cross
+  Source : single_feed
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_H
+  *** Class name :  spherical_cut
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_H
+  *** Class name :  spherical_cut
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 11 -----     Started at 11:40:56 on January 21, 2025
+ spherical_grid_farfield_thetaphi_E add_field ( source :
+ sequence(ref(strut_analysis_arbitrary_cross),ref(single_feed)))
+ 
+ 
+  *** Object name:  spherical_grid_farfield_thetaphi_E
+  *** Class name :  spherical_grid
+  *** Message    :  Add_field message received
+ 
+  Source : strut_analysis_arbitrary_cross
+  Source : single_feed
+ 
+ 
+  *** Object name:  spherical_grid_farfield_thetaphi_E
+  *** Class name :  spherical_grid
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ 
+  *** Object name:  spherical_grid_farfield_thetaphi_E
+  *** Class name :  spherical_grid
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 12 -----     Started at 11:40:56 on January 21, 2025
+ spherical_grid_nearfield_uv_H add_field ( source :
+ sequence(ref(strut_analysis_arbitrary_cross),ref(single_feed)))
+ 
+ 
+  *** Object name:  spherical_grid_nearfield_uv_H
+  *** Class name :  spherical_grid
+  *** Message    :  Add_field message received
+ 
+  Source : strut_analysis_arbitrary_cross
+  Source : single_feed
+ 
+ 
+  *** Object name:  spherical_grid_nearfield_uv_H
+  *** Class name :  spherical_grid
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ 
+  *** Object name:  spherical_grid_nearfield_uv_H
+  *** Class name :  spherical_grid
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ ----- End of Function: fields02_add_fields_from_strut_and_feed -----
+ 
+ ----- TASK No. 13 -----     Started at 11:40:56 on January 21, 2025
+ strut_analysis_arbitrary_cross_01 get_currents ( source :
+ sequence(ref(single_po)), convergence_on_output_grid :
+ sequence(ref(spherical_cut_farfield_E),ref(spherical_cut_nearfield_E)))
+ 
+ 
+  *** Object name:  strut_analysis_arbitrary_cross_01
+  *** Class name :  strut_analysis_arbitrary_cross
+  *** Message    :  Get_currents message received
+ 
+  Source : single_po
+  Convergence test on output grid : spherical_cut_farfield_E
+  Convergence test on output grid : spherical_cut_nearfield_E
+ 
+ 
+  *** Object name:  strut_analysis_arbitrary_cross_01
+  *** Class name :  strut_analysis_arbitrary_cross
+  *** Message    :  Initialization
+ 
+ ----- Call Function: fields03_add_fields_from_strut -----
+ 
+ ----- TASK No. 14 -----     Started at 11:40:57 on January 21, 2025
+ spherical_cut_farfield_E add_field ( source :
+ sequence(ref(strut_analysis_arbitrary_cross_01)))
+ 
+ 
+  *** Object name:  spherical_cut_farfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Add_field message received
+ 
+  Source : strut_analysis_arbitrary_cross_01
+ 
+ 
+  *** Object name:  spherical_cut_farfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 15 -----     Started at 11:40:57 on January 21, 2025
+ spherical_cut_nearfield_E add_field ( source :
+ sequence(ref(strut_analysis_arbitrary_cross_01)))
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Add_field message received
+ 
+  Source : strut_analysis_arbitrary_cross_01
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_E
+  *** Class name :  spherical_cut
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 16 -----     Started at 11:40:57 on January 21, 2025
+ spherical_cut_nearfield_H add_field ( source :
+ sequence(ref(strut_analysis_arbitrary_cross_01)))
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_H
+  *** Class name :  spherical_cut
+  *** Message    :  Add_field message received
+ 
+  Source : strut_analysis_arbitrary_cross_01
+ 
+ 
+  *** Object name:  spherical_cut_nearfield_H
+  *** Class name :  spherical_cut
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 17 -----     Started at 11:40:57 on January 21, 2025
+ spherical_grid_farfield_thetaphi_E add_field ( source :
+ sequence(ref(strut_analysis_arbitrary_cross_01)))
+ 
+ 
+  *** Object name:  spherical_grid_farfield_thetaphi_E
+  *** Class name :  spherical_grid
+  *** Message    :  Add_field message received
+ 
+  Source : strut_analysis_arbitrary_cross_01
+ 
+ 
+  *** Object name:  spherical_grid_farfield_thetaphi_E
+  *** Class name :  spherical_grid
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 18 -----     Started at 11:40:57 on January 21, 2025
+ spherical_grid_nearfield_uv_H add_field ( source :
+ sequence(ref(strut_analysis_arbitrary_cross_01)))
+ 
+ 
+  *** Object name:  spherical_grid_nearfield_uv_H
+  *** Class name :  spherical_grid
+  *** Message    :  Add_field message received
+ 
+  Source : strut_analysis_arbitrary_cross_01
+ 
+ 
+  *** Object name:  spherical_grid_nearfield_uv_H
+  *** Class name :  spherical_grid
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ ----- End of Function: fields03_add_fields_from_strut -----
+ ----- End of Function: analysis -----
+ 
+ ----- TASK No. 19 -----     Started at 11:40:57 on January 21, 2025
+ planar_grid_nearfield_front_01_poynting get_field ( source :
+ sequence(ref(single_feed), ref(single_po), ref(strut_analysis_arbitrary_cross),
+ ref(strut_analysis_arbitrary_cross_01)))
+ 
+ 
+  *** Object name:  planar_grid_nearfield_front_01_poynting
+  *** Class name :  planar_grid
+  *** Message    :  Get_field message received
+ 
+  Source : single_feed
+  Source : single_po
+  Source : strut_analysis_arbitrary_cross
+  Source : strut_analysis_arbitrary_cross_01
+ 
+ 
+  *** Object name:  planar_grid_nearfield_front_01_poynting
+  *** Class name :  planar_grid
+  *** Message    :  Field calculated
+ 
+  Frequency No. :     1
+  Beam No. :     1
+ 
+ ----- TASK No. 20 -----     Started at 11:40:57 on January 21, 2025
+ surface_grid_I get_field ( source : sequence(ref(single_feed), ref(single_po),
+ ref(strut_analysis_arbitrary_cross), ref(strut_analysis_arbitrary_cross_01)))
+ 
+ 
+  *** Object name:  surface_grid_I
+  *** Class name :  surface_grid
+  *** Message    :  Get_field message received
+ 
+  Source : single_feed
+  Source : single_po
+  Source : strut_analysis_arbitrary_cross
+  Source : strut_analysis_arbitrary_cross_01
+ 
+ Get field
+ 
+ 
+ 
+ 
+ ----- TASK No. 21 -----     Started at 11:40:57 on January 21, 2025
+ surface_grid_Hr get_field ( source : sequence(ref(single_feed), ref(single_po),
+ ref(strut_analysis_arbitrary_cross), ref(strut_analysis_arbitrary_cross_01)))
+ 
+ 
+  *** Object name:  surface_grid_Hr
+  *** Class name :  surface_grid
+  *** Message    :  Get_field message received
+ 
+  Source : single_feed
+  Source : single_po
+  Source : strut_analysis_arbitrary_cross
+  Source : strut_analysis_arbitrary_cross_01
+ 
+ Get field
+ 
+ 
+ 
+ 
+ ----- END OF TASKS -----     Completed at 11:40:57 on January 21, 2025
+ Total time was 15.00 sec
+ 
+ TICRA Tools SN: 011665
+ Program stopped at 11:40:57 on 21 January 2025
+ 

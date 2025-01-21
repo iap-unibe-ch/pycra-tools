@@ -6,15 +6,16 @@ build-backend = "hatchling.build"
 # https://peps.python.org/pep-0621/
 [project]
 name = "pycra"
-description = "Package to process Ticra Tools .grd and .cut files based on xarray"
+description = "Package to read Ticra Tools field and coupling data stored in .cut, .grd and .h5 file formats"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "BSD 3-Clause License" }
 authors = [
     { email = "roland.albers@unibe.ch", name = "Roland Albers" },
+    { email = "philipp.schmid@unibe.ch", name = "Philipp J. Schmid"},
 ]
 dynamic = ["version"]
-dependencies = ["xarray","matplotlib","numpy","PyQt5"]
+dependencies = ["numpy","xarray","pint"]
 
 [tool.hatch.version]
 source = "vcs"
