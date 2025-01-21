@@ -134,10 +134,6 @@ def read_frequencies(tordict, objname):
         endfreq_Hz = endfreq.to('Hz').magnitude
         nrfreqs = int(eval(mm_nrfreq.groups()[0]))
         freqs_Hz = np.linspace(startfreq_Hz,endfreq_Hz,nrfreqs)
-        print(startfreq)
-        print(endfreq)
-        print(freqs_Hz)
-        raise
         
     elif freqdict['class_name'] == 'wavelength':
         

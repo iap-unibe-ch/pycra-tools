@@ -291,7 +291,7 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
             field_region_distance, field_region_distance_units = torfile.get_nearfield_distance(tordict, cutname)
             field_region_distance_m = (field_region_distance * ureg[field_region_distance_units]).to('m').magnitude
         else:
-            field_region_distance_m = np.infty
+            field_region_distance_m = np.inf
             
         # frequency
         try:
@@ -352,9 +352,9 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
         field_region = 'near' if cutdict['ncomp'] > 2 else 'far'
         if class_name == 'surface_cut':
             field_region_distance_m = 0.
-        elif (field_region == 'far') & (field_region_distance_m != np.infty):
+        elif (field_region == 'far') & (field_region_distance_m != np.inf):
             print('far-field --> reset field_region_distance_m to infinity') 
-            field_region_distance_m = np.infty
+            field_region_distance_m = np.inf
         else:
             pass
             

@@ -15,7 +15,7 @@ authors = [
     { email = "philipp.schmid@unibe.ch", name = "Philipp J. Schmid"},
 ]
 dynamic = ["version"]
-dependencies = ["xarray","matplotlib","numpy","PyQt5"]
+dependencies = ["numpy","xarray","pint"]
 
 [tool.hatch.version]
 source = "vcs"
