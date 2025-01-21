@@ -1,0 +1,200 @@
+rectangular_horn0_coor_sys  coor_sys  
+(
+)
+ 
+rectangular_horn0  rectangular_horn  
+(
+  frequency        : ref(frequency_range),
+  coor_sys         : ref(rectangular_horn0_coor_sys),
+  aperture_width   : 226.5 mm,
+  aperture_height  : 165.8 mm,
+  flare_length_xz  : 464.6 mm,
+  flare_length_yz  : 419.2 mm
+)
+ 
+rectangular_horn2  rectangular_horn  
+(
+  frequency        : ref(frequency_range),
+  coor_sys         : ref(rectangular_horn2_coor_sys),
+  aperture_width   : 226.5 mm,
+  aperture_height  : 165.8 mm,
+  flare_length_xz  : 464.6 mm,
+  flare_length_yz  : 419.2 mm
+)
+ 
+rectangular_horn2_coor_sys  coor_sys  
+(
+  origin           : struct(x: 0.0 m, y: 0.0 m, z: "2*ref(distance_antenna2reflector)" mm),
+  y_axis           : struct(x: 0.0, y: -1.0, z: 0.0)
+)
+ 
+distance_antenna2reflector  real_variable  
+(
+  value            : 1040.0
+)
+ 
+parameter_sweep  auxiliary_functions  
+(
+)
+ 
+rectangular_plate_coor_sys  coor_sys  
+(
+  origin           : struct(x: 0.0 m, y: 0.0 m, z: "ref(distance_antenna2reflector)" mm)
+)
+ 
+rectangular_plate  rectangular_plate  
+(
+  coor_sys         : ref(rectangular_plate_coor_sys),
+  corner_1         : struct(x: -0.5 m, y: -0.5 m, z: 0.0 m),
+  corner_2         : struct(x: -0.5 m, y: 0.5 m, z: 0.0 m),
+  opp_point        : struct(x: 0.5 m, y: 0.0 m, z: 0.0 m)
+)
+ 
+Npoints_conversiongrids  real_variable  
+(
+  value            : 101.0
+)
+ 
+coupling_system_horn2  coupling_system  
+(
+  frequency        : ref(frequency_range),
+  receiver_sources : sequence(ref(rectangular_horn2)),
+  movement_definition : ref(movement_definition_horn2)
+)
+ 
+po_rectangular_plate  po_single_face_scatterer  
+(
+  frequency        : ref(frequency_range),
+  scatterer        : ref(rectangular_plate),
+  spill_over       : on,
+  ray_output       : all
+)
+ 
+spherical_cut  spherical_cut  
+(
+  coor_sys         : ref(rectangular_plate_coor_sys),
+  theta_range      : struct(start: 0.0, end: 180.0, np: "ref(Npoints_convergencecuts)"),
+  phi_range        : struct(start: 0.0, end: 325.0, np: 12)
+)
+ 
+frequency_range  frequency_range  
+(
+  frequency_range  : struct(start_frequency: 3.5 GHz, end_frequency: 7.0 GHz, number_of_frequencies: 3)
+)
+ 
+planar_grid_horn1  planar_grid  
+(
+  coor_sys         : ref(rectangular_horn0_coor_sys),
+  near_dist        : 0.0 mm,
+  x_range          : struct(start: -0.5, end: 0.5, np: "ref(Npoints_conversiongrids)", unit: m),
+  y_range          : struct(start: -0.5, end: 0.5, np: "ref(Npoints_conversiongrids)"),
+  frequency        : ref(frequency_range)
+)
+ 
+movement_definition_horn2  movement_definition  
+(
+  coor_sys_for_movements : ref(rectangular_horn2_coor_sys),
+  moved_coordinate_systems : sequence(ref(rectangular_horn2_coor_sys)),
+  movements        : sequence
+    (    struct(movement: rotation_around, axis: x_original, start: 0.0, end: 90.0, number: 5, length_unit: m)
+,
+    struct(movement: rotation_around, axis: z_original, start: 0.0, end: 90.0, number: 2, length_unit: m)
+    ),
+  list             : on
+)
+ 
+rectangular_horn1  rectangular_horn  
+(
+  frequency        : ref(frequency_range),
+  coor_sys         : ref(rectangular_horn1_coor_sys),
+  aperture_width   : 226.5 mm,
+  aperture_height  : 165.8 mm,
+  flare_length_xz  : 464.6 mm,
+  flare_length_yz  : 419.2 mm
+)
+ 
+rectangular_horn1_coor_sys  coor_sys  
+(
+  origin           : struct(x: 0.0 m, y: "ref(distance_antenna2reflector)" mm, z: 
+"ref(distance_antenna2reflector)" mm),
+  y_axis           : struct(x: 0.0, y: 0.0, z: 1.0)
+)
+ 
+coupling_system_horn1  coupling_system  
+(
+  frequency        : ref(frequency_range),
+  receiver_sources : sequence(ref(rectangular_horn1)),
+  movement_definition : ref(movement_definition_horn1)
+)
+ 
+movement_definition_horn1  movement_definition  
+(
+  coor_sys_for_movements : ref(rectangular_horn1_coor_sys),
+  moved_coordinate_systems : sequence(ref(rectangular_horn1_coor_sys)),
+  movements        : sequence
+    (    struct(movement: rotation_around, axis: z_original, start: 0.0, end: 90.0, number: 2, length_unit: m)
+    )
+)
+ 
+coupling_system_horn0  coupling_system  
+(
+  frequency        : ref(frequency_range),
+  receiver_sources : sequence(ref(rectangular_horn0))
+)
+ 
+Npoints_convergencecuts  real_variable  
+(
+  value            : 101.0
+)
+ 
+movement_definition_horn0_trivial  movement_definition  
+(
+  coor_sys_for_movements : ref(rectangular_horn0_coor_sys),
+  moved_coordinate_systems : sequence(ref(rectangular_horn0_coor_sys)),
+  movements        : sequence
+    (    struct(movement: translation_along, axis: z_original, start: 0.0, end: 
+"ref(distance_antenna2reflector)/2", number: 0, length_unit: mm)
+    )
+)
+ 
+coupling_system_horn0_trivial  coupling_system  
+(
+  frequency        : ref(frequency_range),
+  receiver_sources : sequence(ref(rectangular_horn0)),
+  movement_definition : ref(movement_definition_horn0_trivial)
+)
+ 
+//DO NOT MODIFY OBJECTS BELOW THIS LINE.
+//THESE OBJECTS ARE CREATED AND MANAGED BY THE
+//GRAPHICAL USER INTERFACE AND SHOULD NOT BE
+//MODIFIED MANUALLY!
+view_1  view  
+(
+  objects          : sequence(ref(view_1_coor_sys_plot),ref(view_1_feed_plot),ref(view_1_plate_plot),
+ref(view_1_output_points_plot)),
+  show_hide        : struct(reflectors: show, coordinate_systems: show, feeds: show, output_points: show, 
+rcs_cuts_grids: show, struts: show, tabulated_meshes: show, boxes: show, plates: show, wires: show, 
+radiating_devices: show, mom_meshes: hide, apertures_in_screen: show, lenses: show, tabulated_planar_sources: 
+show, plane_waves: show, dgr_intercostals: show, cad_files: show, boolean_scatterer: show, rooftop_mirrors: 
+show, loads: show, bors: show, mom_sources: show, quasi_periodic_surfaces: show, unused: show, ellipsoids: 
+show)
+)
+ 
+view_1_coor_sys_plot  coor_sys_plot  
+(
+)
+ 
+view_1_feed_plot  feed_plot  
+(
+)
+ 
+view_1_plate_plot  plate_plot  
+(
+)
+ 
+view_1_output_points_plot  output_points_plot  
+(
+)
+ 
+ //$$ Saved at 21:24:43 on 20.01.2025 by TICRA Tools 23.1 SN=011665
+  

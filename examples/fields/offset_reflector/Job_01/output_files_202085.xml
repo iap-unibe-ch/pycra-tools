@@ -1,0 +1,54 @@
+<OutputFiles>
+ <File Format="Text" Object="unknown" SubObject="unknown" Type="tci" Path="Job_01.tci" Hash="65caeabe39b3f47e76dbab8b7aba733c" FileOperation="Copy"/>
+ <File Format="Text" Object="unknown" SubObject="unknown" Type="tor" Path="Job_01.tor" Hash="833b278665c051ed92d7425cf342bf6d" FileOperation="Copy"/>
+ <File Format="Text" Object="unknown" SubObject="unknown" Type="out" Path="Job_01.out" Hash="16f6cb9ad2aeaa37b72159bce59d4e00" FileOperation="Copy"/>
+ <File Format="Text" Object="single_po" SubObject="unknown" Type="spill_over_data" Path="single_po_spill_over_data_faces.fmt" Hash="cf924f42f4dec82b05080e60061986c4" FileOperation="Copy"/>
+ <File Format="Ticra" Object="spherical_cut_farfield_E" SubObject="unknown" Quantity="E" Type="Cut:Spherical" Path="spherical_cut_farfield_E.cut" Hash="ae7e513d071b42d54de502f0de09d96f" FileOperation="Copy">
+  <Parameter Name="Frequency" Unit="GHz" Values="[9.99308193333333;9.99308193333333;1]"/>
+  <Parameter Name="Phi" Unit="deg" Values="[0.000000000000000E+000;90.0000000000000;3]"/>
+  <Parameter Name="Theta" Unit="deg" Values="[0.000000000000000E+000;180.000000000000;31]"/>
+  <Scan Type="polar"/>
+ </File>
+ <File Format="Ticra" Object="spherical_cut_nearfield_E" IsNearField="1" SubObject="unknown" Quantity="E" Type="Cut:Spherical" Path="spherical_cut_nearfield_E.cut" Hash="cf04f8ba6101ecb5ffdc509fee02b18c" FileOperation="Copy">
+  <Parameter Name="Frequency" Unit="GHz" Values="[9.99308193333333;9.99308193333333;1]"/>
+  <Parameter Name="Phi" Unit="deg" Values="[0.000000000000000E+000;90.0000000000000;3]"/>
+  <Parameter Name="Theta" Unit="deg" Values="[0.000000000000000E+000;180.000000000000;31]"/>
+  <Scan Type="polar"/>
+ </File>
+ <File Format="Ticra" Object="spherical_cut_nearfield_H" IsNearField="1" SubObject="unknown" Quantity="H" Type="Cut:Spherical" Path="spherical_cut_nearfield_H.cut" Hash="0aad848bf5e0dac2e2ec2f62a1f692b8" FileOperation="Copy">
+  <Parameter Name="Frequency" Unit="GHz" Values="[9.99308193333333;9.99308193333333;1]"/>
+  <Parameter Name="Phi" Unit="deg" Values="[0.000000000000000E+000;90.0000000000000;3]"/>
+  <Parameter Name="Theta" Unit="deg" Values="[-180.000000000000;180.000000000000;31]"/>
+  <Scan Type="polar"/>
+ </File>
+ <File Format="Ticra" Object="spherical_grid_farfield_thetaphi_E" SubObject="unknown" Quantity="E" Type="Grid:Spherical" Path="spherical_grid_farfield_thetaphi_E.grd" Hash="012e46065150e0811c13e942cc1f2e81" FileOperation="Copy">
+  <Parameter Name="Frequency" Unit="GHz" Values="[9.99308193333333;9.99308193333333;1]"/>
+  <Parameter Name="Theta" Unit="deg" Values="[0.000000000000000E+000;90.0000000000000;21]"/>
+  <Parameter Name="Phi" Unit="deg" Values="[0.000000000000000E+000;337.500000000000;16]"/>
+  <Scan Type="theta_phi"/>
+ </File>
+ <File Format="Ticra" Object="spherical_grid_nearfield_uv_H" IsNearField="1" SubObject="unknown" Quantity="H" Type="Grid:Spherical" Path="spherical_grid_nearfield_uv_H.grd" Hash="540d018cc78196d90843462c3100b596" FileOperation="Copy">
+  <Parameter Name="Frequency" Unit="GHz" Values="[9.99308193333333;9.99308193333333;1]"/>
+  <Parameter Name="V" Unit="" Values="[-0.707106780000000;0.707106780000000;13]"/>
+  <Parameter Name="U" Unit="" Values="[-0.707106780000000;0.707106780000000;11]"/>
+  <Scan Type="uv"/>
+ </File>
+ <File Format="Ticra" Object="planar_grid_nearfield_front_01_poynting" IsNearField="1" SubObject="unknown" Quantity="P" Type="Grid:PlanarPoynting" Path="planar_grid_nearfield_front_01_poynting.grd" Hash="83570b017079f545ed0139b1ec94bfe2" FileOperation="Copy">
+  <Parameter Name="Frequency" Unit="GHz" Values="[9.99308193333333;9.99308193333333;1]"/>
+  <Parameter Name="Y" Unit="m" Values="[-1.50000000000000;1.50000000000000;15]"/>
+  <Parameter Name="X" Unit="m" Values="[-1.50000000000000;1.50000000000000;11]"/>
+  <Scan Type="xy"/>
+ </File>
+ <File Format="Ticra" Object="surface_grid_I" SubObject="unknown" Quantity="J" Type="Grid:Surface" Path="surface_grid_I.grd" Hash="558aaf825b677394d0d3ba03c9af720b" FileOperation="Copy">
+  <Parameter Name="Frequency" Unit="GHz" Values="[9.99308193333333;9.99308193333333;1]"/>
+  <Parameter Name="Y" Unit="m" Values="[0.000000000000000E+000;0.500000000000000;7]"/>
+  <Parameter Name="X" Unit="m" Values="[0.000000000000000E+000;1.00000000000000;5]"/>
+ </File>
+ <File Format="Ticra" Object="surface_grid_Hr" SubObject="unknown" Quantity="H" Type="Grid:Surface" Path="surface_grid_Hr.grd" Hash="2072a97d45c5276f686f72652cb0ea82" FileOperation="Copy">
+  <Parameter Name="Frequency" Unit="GHz" Values="[9.99308193333333;9.99308193333333;1]"/>
+  <Parameter Name="Y" Unit="m" Values="[0.000000000000000E+000;0.500000000000000;7]"/>
+  <Parameter Name="X" Unit="m" Values="[0.000000000000000E+000;1.00000000000000;5]"/>
+ </File>
+ <File Format="Text" Type="Comments" Path="comments.txt"/>
+ <File Format="Text" Type="Screen" Path="screenoutput.txt"/>
+</OutputFiles>

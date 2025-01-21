@@ -1,0 +1,291 @@
+single_global_coor  coor_sys  
+(
+)
+ 
+single_surface  paraboloid  
+(
+  focal_length     : 0.372 m
+)
+ 
+single_rim  elliptical_rim  
+(
+  centre           : struct(x: 0.1717662 m, y: 0.0 m),
+  half_axis        : struct(x: 0.3 m, y: 0.3 m)
+)
+ 
+single_reflector  reflector  
+(
+  coor_sys         : ref(single_global_coor),
+  surfaces         : sequence(ref(single_surface)),
+  rim              : ref(single_rim)
+)
+ 
+single_feed_coor  coor_sys  
+(
+  origin           : struct(x: 0.0 m, y: 0.0 m, z: 0.372 m),
+  x_axis           : struct(x: 0.898793750613415, y: 0.0, z: 0.438371753034191),
+  y_axis           : struct(x: 0.0, y: -1.0, z: 0.0),
+  base             : ref(single_global_coor)
+)
+ 
+single_feed  gaussian_beam_pattern  
+(
+  frequency        : ref(wavelength_range),
+  coor_sys         : ref(single_feed_coor),
+  taper_angle      : 42.1578150067902,
+  taper            : -12.0
+)
+ 
+single_cut_coor  coor_sys  
+(
+  origin           : struct(x: 0.171766198488948 m, y: 0.0 m, z: 0.198277062791295E-01 m),
+  base             : ref(single_global_coor)
+)
+ 
+spherical_grid_farfield_thetaphi_E  spherical_grid  
+(
+  coor_sys         : ref(single_cut_coor),
+  grid_type        : theta_phi,
+  x_range          : struct(start: 0.0, end: 337.5, np: "ref(N_spherical_grid_phi)"),
+  y_range          : struct(start: 0.0, end: 90.0, np: "ref(N_spherical_grid_theta)"),
+  file_name        : "",
+  frequency        : ref(wavelength_range)
+)
+ 
+d1  real_variable  
+(
+  value            : 1.0
+)
+ 
+coor_sys_strut  coor_sys  
+(
+  origin           : struct(x: -0.882338015E-01 m, y: 0.0 m, z: 0.0 m)
+)
+ 
+polygonal_struts  polygonal_struts  
+(
+  position         : sequence
+    (    struct(coor_sys: ref(coor_sys_strut), z1: 0.0 m, z2: 0.3694851342 m)
+    ),
+  cross_section    : sequence
+    (    struct(x: 1.0 cm, y: 2.5 cm),
+    struct(x: 1.0 cm, y: -2.5 cm),
+    struct(x: -1.0 cm, y: -2.5 cm),
+    struct(x: -1.0 cm, y: 2.5 cm)
+    )
+)
+ 
+strut_analysis_arbitrary_cross  strut_analysis_arbitrary_cross  
+(
+  frequency        : ref(wavelength_range),
+  strut            : ref(polygonal_struts)
+)
+ 
+spherical_cut_farfield_E  spherical_cut  
+(
+  coor_sys         : ref(single_cut_coor),
+  theta_range      : struct(start: 0.0, end: 180.0, np: "ref(N_spherical_cut)"),
+  phi_range        : struct(start: 0.0, end: 90.0, np: 3),
+  comment          : "Some comment other than Field data in cuts",
+  frequency        : ref(wavelength_range)
+)
+ 
+coor_sys_stut4feed  coor_sys  
+(
+  base             : ref(single_feed_coor)
+)
+ 
+spherical_cut_nearfield_E  spherical_cut  
+(
+  coor_sys         : ref(single_cut_coor),
+  theta_range      : struct(start: 0.0, end: 180.0, np: "ref(N_spherical_cut)"),
+  phi_range        : struct(start: 0.0, end: 90.0, np: 3),
+  near_far         : near,
+  near_dist        : "ref(d1)" m,
+  frequency        : ref(wavelength_range)
+)
+ 
+single_po  po_single_face_scatterer  
+(
+  frequency        : ref(wavelength_range),
+  scatterer        : ref(single_reflector),
+  spill_over       : on,
+  coor_sys         : ref(single_global_coor)
+)
+ 
+spherical_cut_nearfield_H  spherical_cut  
+(
+  coor_sys         : ref(single_cut_coor),
+  theta_range      : struct(start: -180.0, end: 180.0, np: "ref(N_spherical_cut)"),
+  phi_range        : struct(start: 0.0, end: 90.0, np: 3),
+  e_h              : h_field,
+  near_far         : near,
+  near_dist        : "ref(d1)" m,
+  frequency        : ref(wavelength_range)
+)
+ 
+Nx_planar_grid  real_variable  
+(
+  value            : 11.0
+)
+ 
+N_spherical_grid_phi  real_variable  
+(
+  value            : 16.0
+)
+ 
+N_spherical_cut  real_variable  
+(
+  value            : 31.0
+)
+ 
+N_spherical_grid_theta  real_variable  
+(
+  value            : 21.0
+)
+ 
+Ny_planar_grid  real_variable  
+(
+  value            : 15.0
+)
+ 
+spherical_grid_nearfield_uv_H  spherical_grid  
+(
+  coor_sys         : ref(single_cut_coor),
+  x_range          : struct(start: -0.70710678, end: 0.70710678, np: 11),
+  y_range          : struct(start: -0.70710678, end: 0.70710678, np: 13),
+  e_h              : h_field,
+  near_far         : near,
+  near_dist        : "ref(d1)" m,
+  frequency        : ref(wavelength_range)
+)
+ 
+planar_grid_nearfield_front_01_poynting  planar_grid  
+(
+  coor_sys         : ref(single_cut_coor),
+  near_dist        : "ref(d1)" m,
+  x_range          : struct(start: -1.5, end: 1.5, np: "ref(Nx_planar_grid)", unit: m),
+  y_range          : struct(start: -1.5, end: 1.5, np: "ref(Ny_planar_grid)"),
+  polarisation     : poynting,
+  frequency        : ref(wavelength_range)
+)
+ 
+rectangular_plate  rectangular_plate  
+(
+  coor_sys         : ref(coor_sys_rectangular_plate),
+  corner_1         : struct(x: -1.0 m, y: -1.0 m, z: 2.0 m),
+  corner_2         : struct(x: -1.0 m, y: 1.0 m, z: 2.0 m),
+  opp_point        : struct(x: 1.0 m, y: -1.0 m, z: 2.0 m)
+)
+ 
+surface_grid_I  surface_grid  
+(
+  scatterer        : ref(rectangular_plate),
+  x_range          : struct(start: 0.0, end: 1.0, np: 5, unit: m),
+  y_range          : struct(start: 0.0, end: 0.5, np: 7),
+  field_type       : currents,
+  frequency        : ref(wavelength_range)
+)
+ 
+coor_sys_rectangular_plate  coor_sys  
+(
+  base             : ref(single_cut_coor)
+)
+ 
+strut_analysis_arbitrary_cross_01  strut_analysis_arbitrary_cross  
+(
+  frequency        : ref(wavelength_range),
+  strut            : ref(polygonal_struts)
+)
+ 
+wavelength_range  wavelength_range  
+(
+  wavelength_range : struct(start_wavelength: 0.3E-01 m, end_wavelength: 0.3E-01 m, number_of_wavelengths: 1)
+)
+ 
+surface_grid_Hr  surface_grid  
+(
+  scatterer        : ref(rectangular_plate),
+  x_range          : struct(start: 0.0, end: 1.0, np: 5, unit: m),
+  y_range          : struct(start: 0.0, end: 0.5, np: 7),
+  field_type       : reflected_h_field,
+  polarisation     : circular,
+  frequency        : ref(wavelength_range)
+)
+ 
+//DO NOT MODIFY OBJECTS BELOW THIS LINE.
+//THESE OBJECTS ARE CREATED AND MANAGED BY THE
+//GRAPHICAL USER INTERFACE AND SHOULD NOT BE
+//MODIFIED MANUALLY!
+view_1  view  
+(
+  objects          : sequence(ref(view_1_coor_sys_plot),ref(view_1_reflector_plot),ref(view_1_feed_plot),
+ref(view_1_output_points_plot),ref(polygonal_struts_plot_for_view_1),
+ref(reflector_plot_for_single_reflector_for_view_1),ref(rays_from_point_sources),
+ref(output_points_plot_for_spherical_cut_nearfield_E_for_view_1),
+ref(coor_sys_plot_for_single_cut_coor_for_view_1),ref(plate_plot_for_view_1)),
+  hidden_objects   : sequence(ref(single_feed_coor),ref(coor_sys_stut4feed),ref(coor_sys_strut),
+ref(single_global_coor)),
+  show_hide        : struct(reflectors: show, coordinate_systems: show, feeds: show, output_points: show, 
+rcs_cuts_grids: hide, struts: show, tabulated_meshes: show, boxes: show, plates: show, wires: show, 
+radiating_devices: show, mom_meshes: hide, apertures_in_screen: show, lenses: show, tabulated_planar_sources: 
+show, plane_waves: show, dgr_intercostals: show, cad_files: show, boolean_scatterer: show, rooftop_mirrors: 
+show, loads: show, bors: show, mom_sources: show, quasi_periodic_surfaces: show, unused: show, ellipsoids: 
+show)
+)
+ 
+view_1_coor_sys_plot  coor_sys_plot  
+(
+)
+ 
+view_1_feed_plot  feed_plot  
+(
+)
+ 
+view_1_output_points_plot  output_points_plot  
+(
+  distance         : 7.0 m
+)
+ 
+view_1_reflector_plot  reflector_plot  
+(
+)
+ 
+reflector_plot_for_single_reflector_for_view_1  reflector_plot  
+(
+  objects          : sequence(ref(single_reflector)),
+  surface_colour   : struct(r: 0.72156862745098, g: 0.450980392156863, b: 0.2)
+)
+ 
+polygonal_struts_plot_for_view_1  polygonal_struts_plot  
+(
+  surface_colour   : struct(r: 0.72156862745098, g: 0.450980392156863, b: 0.2)
+)
+ 
+rays_from_point_sources  rays_from_point_sources  
+(
+  objects          : sequence(ref(single_feed)),
+  theta_range      : struct(start: -10.0, end: 10.0, np: 3),
+  phi_range        : struct(start: 90.0, end: 90.0, np: 1),
+  ray_path_range   : struct(start: 0.0 m, end: 2.0 m)
+)
+ 
+output_points_plot_for_spherical_cut_nearfield_E_for_view_1  output_points_plot  
+(
+  objects          : sequence(ref(spherical_cut_nearfield_E)),
+  colour           : struct(r: 0.23921568627451, g: 0.219607843137255, b: 0.274509803921569)
+)
+ 
+coor_sys_plot_for_single_cut_coor_for_view_1  coor_sys_plot  
+(
+  objects          : sequence(ref(single_cut_coor)),
+  axis_length      : 0.4 m
+)
+ 
+plate_plot_for_view_1  plate_plot  
+(
+  surface_colour   : struct(r: 0.72156862745098, g: 0.450980392156863, b: 0.2)
+)
+ 
+ //$$ Saved at 11:40:42 on 21.01.2025 by TICRA Tools 23.1 SN=011665
+  
