@@ -233,7 +233,7 @@ def gather_information(cutfilepath: dict, tordict: dict = {}) -> dict:
             movspecstring = tordict[movement_definition]['movements']
             references = re.findall('ref\(([^\)]+)\)',movspecstring)
             for reference in references:
-                valstr = torfile.get_real_variable(tordict,reference) ### maybe iteratively continue
+                valstr = torfile.get_real_variable(tordict,reference)
                 movspecstring = movspecstring.replace('ref(%s)'%reference, valstr)
             
             # no there are no brackets left except for following: sequence( struct(...), struct(...), ... )

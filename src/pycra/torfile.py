@@ -101,7 +101,7 @@ def read_frequencies(tordict, objname):
         # replace references
         references = re.findall('ref\(([^\)]+)\)',freqstr)
         for reference in references:
-            valstr = get_real_variable(tordict,reference) ### maybe iteratively continue
+            valstr = get_real_variable(tordict,reference)
             freqstr = freqstr.replace('ref(%s)'%reference, valstr)
         
         # retrieve numeric values
@@ -121,7 +121,7 @@ def read_frequencies(tordict, objname):
         # replace references
         references = re.findall('ref\(([^\)]+)\)',freqstr)
         for reference in references:
-            valstr = get_real_variable(tordict,reference) ### maybe iteratively continue
+            valstr = get_real_variable(tordict,reference)
             freqstr = freqstr.replace('ref(%s)'%reference, valstr)
         
         # retrieve numeric values
@@ -143,7 +143,7 @@ def read_frequencies(tordict, objname):
         # replace references
         references = re.findall('ref\(([^\)]+)\)',freqstr)
         for reference in references:
-            value = get_real_variable(tordict,reference) ### maybe iteratively continue
+            value = get_real_variable(tordict,reference)
             freqstr = freqstr.replace('ref(%s)'%reference, str(value))
         
         # retrieve numeric values
@@ -165,7 +165,7 @@ def read_frequencies(tordict, objname):
         # replace references
         references = re.findall('ref\(([^\)]+)\)',freqstr)
         for reference in references:
-            valstr = get_real_variable(tordict,reference) ### maybe iteratively continue
+            valstr = get_real_variable(tordict,reference)
             freqstr = freqstr.replace('ref(%s)'%reference, valstr)
         
         # retrieve numeric values
@@ -220,9 +220,59 @@ def get_nearfield_distance(tordict, gridname):
     return distance, units
 
 def get_real_variable(tordict, varname):
+    """
+    resolve real variables
+    
+    Example tor-file
+    -----------------
+    
+    # testvar  real_variable  
+    # (
+    # value            : "ref(dradome)/ref(something)"
+    # )
+    
+    # something  real_variable  
+    # (
+    # value            : "ref(distance_antenna2radome)"
+    # )
+    
+    # dradome  real_variable  
+    # (
+    # value            : "ref(dskin)+ref(dcore)+ref(dskin)"
+    # )
+    
+    # distance_antenna2radome  real_variable  
+    # (
+    # value            : 1040.0
+    # )
+    
+    # dskin  real_variable  
+    # (
+    # value            : 0.5
+    # )
+    
+    # dcore  real_variable  
+    # (
+    # value            : 38.0
+    # )
+    
+    Example usage
+    -------------
+    
+    from pycra import torfile
+    testvar = torfile.get_real_variable(tordict,'testvar')
+    print(eval(testvar)) # --> 0.0375
+    print(testvar) # --> ((0.5)+(38.0)+(0.5))/((1040.0))
+    
+    """
 
     valstr = tordict[varname]['value']
-    
+    references = re.findall('ref\(([^\)]+)\)',valstr)
+    for reference in references:
+        valstr_next = get_real_variable(tordict,reference) # recursion
+        valstr = valstr.replace('ref(%s)'%reference, "(%s)"%valstr_next) # add brackets to ensure correct multiplications etc. in equations
+    valstr = re.search('^"?([^"]+)"?$',valstr).groups()[0] # drop quotation marks
+        
     return valstr
 
 def get_coordinate_systems(tordict):
