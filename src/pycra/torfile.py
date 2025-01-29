@@ -111,7 +111,7 @@ def read_frequencies(tordict, objname):
             print('Failed to read frequencies! Not in following regex format: %s' % freqsformat)
             raise
         else:
-            freqs_units = re.findall('"?([^\s"]+)"?\s([a-zA-Z]+)', mm.groups()[0]) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
+            freqs_units = re.findall('"?([^\s"]+)"?\s([a-zA-Z]+),?', mm.groups()[0]) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
             freqs_Hz = [(eval(freq)*ureg[unit]).to('Hz').magnitude for freq,unit in freqs_units]
 
     elif freqdict['class_name'] == 'frequency_range':
@@ -153,7 +153,7 @@ def read_frequencies(tordict, objname):
             print('Failed to read wavelengths! Not in following regex format: %s' % freqsformat)
             raise
         else: 
-            wavelengths_units = re.findall('"?([^\s"]+)"?\s([a-zA-Z]+)', mm.groups()[0]) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
+            wavelengths_units = re.findall('"?([^\s"]+)"?\s([a-zA-Z]+),?', mm.groups()[0]) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
             wavelengths = [(eval(wavelength)*ureg[unit]).to('m').magnitude for wavelength,unit in wavelengths_units]
             freqs_Hz = [speedoflight / wavelength for wavelength in wavelengths]
         
@@ -201,19 +201,26 @@ def get_coordinate_system_name(torinfo):
 def get_nearfield_distance(tordict, gridname):
 
     torinfo = tordict[gridname]
+    if torinfo['class_name'] in ['spherical_cut', 'planar_cut', 'spherical_grid', 'planar_grid']:
+        keyword = 'near_dist'
+    elif torinfo['class_name'] in ['cylindrical_cut', 'cylindrical_grid']:
+        keyword = 'radius'
+    else:
+        print('"get_nearfield_distance" not implemented for given class_name: %s' % torinfo['class_name'])
+        raise
 
     if 'near_dist' not in torinfo.keys():
         distance = 0
         units = 'm'
     else:
         regexformat = '"ref\((.*)\)" (.*)'
-        mm = re.search(regexformat, torinfo['near_dist'])
+        mm = re.search(regexformat, torinfo[keyword])
         if mm:
             varname = mm.groups()[0]
             units = mm.groups()[1]
             distance = float(get_real_variable(tordict, varname))
         else:
-            distance_units = torinfo['near_dist'].split(' ')
+            distance_units = torinfo[keyword].split(' ')
             distance = float(distance_units[0])
             units = distance_units[1]
 

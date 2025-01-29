@@ -234,21 +234,21 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
         coordinate_system_name = torfile.get_coordinate_system_name(torinfo)
         
         # near- vs. farfield
-        if 'near_far' in torinfo.keys():
-            field_region = torinfo['near_far'].split(',')[0]
-        elif class_name in ['planar_grid','surface_grid']:
+        if class_name in ['planar_grid','surface_grid','cylindrical_grid']:
             field_region = 'near'
+        elif 'near_far' in tordict[gridname].keys():
+            field_region = tordict[gridname]['near_far'].split(',')[0]
         else: 
             field_region = 'far'
             
         # nearfield distance
         if class_name == 'surface_grid':
             field_region_distance_m = 0.
-        elif field_region == 'near':
-            field_region_distance, field_region_distance_units = torfile.get_nearfield_distance(tordict, gridname)
-            field_region_distance_m = (field_region_distance * ureg[field_region_distance_units]).to('m').magnitude
-        else:
+        elif field_region == 'far':
             field_region_distance_m = np.inf
+        else:
+            field_region_distance, field_region_distance_units = torfile.get_nearfield_distance(tordict, gridname)
+            field_region_distance_m = (field_region_distance * ureg[field_region_distance_units]).to('m').magnitude            
             
         # frequency
         try:
@@ -279,7 +279,7 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
     elif userinfo:
                 
         # TICRA TOOLS 23.1.0 p. 2109...
-        class_name_options = labels.grid_type.keys() # ['spherical_grid', 'planar_grid', 'cylindrical_grid', 'surface_cut']
+        class_name_options = labels.grid_type.keys() # ['spherical_grid', 'planar_grid', 'cylindrical_grid', 'surface_grid']
         field_name_options = {
             'spherical_grid': ['e_field', 'h_field'],
             'planar_grid': ['e_field', 'h_field'],
@@ -350,8 +350,8 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
             freqs_Hz = griddict['freqs_Hz']
     
     # given all the properties: define labels from user manual
-    coordinate_system_type = labels.grid_type[class_name][griddict['igrid']] # e.g. {'name': 'uv', 'coords': ('u', 'v'), 'units': ('m', 'm'), 'tex': ('u', 'v')}
-    polarization_type = labels.grid_polarization[class_name][griddict['icomp']][0] # e.g. linear
+    coordinate_system = labels.grid_type[class_name][griddict['igrid']] # e.g. {'name': 'uv', 'coords': ('u', 'v'), 'units': ('m', 'm'), 'tex': ('u', 'v')}
+    polarisation = labels.grid_polarization[class_name][griddict['icomp']][0] # e.g. linear
     field_components_mathnames = labels.grid_polarization[class_name][griddict['icomp']][1] # e.g. ['E_{co}', 'E_{cx}', 'E_r']
     field_components_mathnames = field_components_mathnames[0:griddict['ncomp']] # e.g. ['E_{co}', 'E_{cx}']
     
@@ -376,7 +376,7 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
         pass
     
     # determine units of the field components
-    field_components_unitsystem, field_components_mathunits = labels.units_of_components(polarization_type, field_region)
+    field_components_unitsystem, field_components_mathunits = labels.units_of_components(polarisation, field_region)
     
     # gather all the information
     inputinfodict = {
@@ -386,12 +386,12 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
         'field_region_distance_m': field_region_distance_m, # torfile/user (optional)
         'freqs_Hz': freqs_Hz} # torfile/user (optional)
     outputinfodict = {
-        'coordinate_system_type': coordinate_system_type, # icut + class_name --> e.g. spherical_cut: polar, conical -->  {'name': 'polar', 'coords': ('phi', 'theta'), 'units': ('deg', 'deg'), 'tex': ('\\phi', '\\theta')}
-        'polarization_type': polarization_type, # icomp + class_name --> e.g. spherical_cut: linear, total power, ...
+        'coordinate_system': coordinate_system, # icut + class_name --> e.g. spherical_cut: polar, conical -->  {'name': 'polar', 'coords': ('phi', 'theta'), 'units': ('deg', 'deg'), 'tex': ('\\phi', '\\theta')}
+        'polarisation': polarisation, # icomp + class_name --> e.g. spherical_cut: linear, total power, ...
         'field_region': field_region, # ncomp / torfile --> near_field / far_field
         'field_components_mathnames': field_components_mathnames, # ncomp + class_name + field_name --> e.g. spherical_cut: ['E_{co}', 'E_{cx}', 'E_r']
-        'field_components_unitsystem': field_components_unitsystem, # icomp + class_name (polarization_type & field_region) --> e.g. spherical
-        'field_components_mathunits': field_components_mathunits} # icomp + class_name (polarization_type & field_region)
+        'field_components_unitsystem': field_components_unitsystem, # icomp + class_name (polarisation & field_region) --> e.g. spherical
+        'field_components_mathunits': field_components_mathunits} # icomp + class_name (polarisation & field_region)
     infodict = {**inputinfodict,**outputinfodict}
 
     return infodict
