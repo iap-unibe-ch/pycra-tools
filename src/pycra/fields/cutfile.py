@@ -161,6 +161,10 @@ def readcut(cutfilepath: str, torfilepath: str = '', tordict: dict = {},
     - centre_offset
 
     """
+    
+    cutfilepath = Path(cutfilepath)
+    if cutfilepath.suffix != '.cut':
+        raise Exception('Cutfile extension must .cut (given file: %s)' % cutfilepath)
 
     # read cutfile to dictionary
     cutdict = cut2dict(cutfilepath)
@@ -179,8 +183,8 @@ def readcut(cutfilepath: str, torfilepath: str = '', tordict: dict = {},
     infodict = gather_information(cutdict, tordict, userinfo)
     relevant_keys = [
         'file_name', 'class_name', 'field_region', 'field_region_distance_m',
-        'coordinate_system_type', 'coordinate_system_name', 'fix_coordinates', 'varying_coordinates', 
-        'field_name', 'polarization_type', 'field_components_mathnames', 'field_components_mathunits', 'field_components_unitsystem',
+        'coordinate_system', 'coordinate_system_name', 'fix_coordinates', 'varying_coordinates', 
+        'field_name', 'polarisation', 'field_components_mathnames', 'field_components_mathunits', 'field_components_unitsystem',
         'freqs_Hz', 'data']
     cutinfodict = {k:v for k,v in {**cutdict, **infodict}.items() if k in relevant_keys}
 
@@ -189,14 +193,13 @@ def readcut(cutfilepath: str, torfilepath: str = '', tordict: dict = {},
 
     return da
 
-def cut2dict(cutfilepath: str):
+def cut2dict(cutfilepath: Path):
     """
     Read cutfile-data into dictionary. Comments:
     - Every cut is has the same number of data points.
     - Read-off common information from first cut's header.
     """
 
-    cutfilepath = Path(cutfilepath) # convert string to pathlib object
     with open(cutfilepath, 'r') as file_cut:
         lines = file_cut.readlines()
 
@@ -257,7 +260,7 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
 
         cutname = Path(cutdict['file_name']).stem
         
-        # get class_name ('spherical_grid', ...)
+        # get class_name ('spherical_cut', ...)
         class_name = tordict[cutname]['class_name'] # spherical_cut, planar_cut, surface_cut and cylindrical_cut
         
         # check that the identified class_name is implemented (to avoid wheird errors)
@@ -268,7 +271,7 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
             raise
         
         # field ('e_field', 'h_field', 'reflected_e_field', 'currents', ...)
-        if class_name == 'surface_grid':
+        if class_name == 'surface_cut':
             field_name = tordict[cutname]['field_type'] if 'field_type' in tordict[cutname].keys() else 'indicent_e_field'
         else:
             field_name = tordict[cutname]['e_h'] if 'e_h' in tordict[cutname].keys() else 'e_field'
@@ -277,21 +280,21 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
         coordinate_system_name = torfile.get_coordinate_system_name(tordict[cutname]) # e.g. single_cut_coor
             
         # near- vs. farfield
-        if 'near_far' in tordict[cutname].keys():
-            field_region = tordict[cutname]['near_far'].split(',')[0]
-        elif class_name in ['planar_cut','surface_cut']:
+        if class_name in ['planar_cut','surface_cut','cylindrical_cut']:
             field_region = 'near'
+        elif 'near_far' in tordict[cutname].keys(): # spherical_cut
+            field_region = tordict[cutname]['near_far'].split(',')[0]
         else: 
             field_region = 'far'
-            
+                    
         # nearfield distance
         if class_name == 'surface_cut':
             field_region_distance_m = 0.
-        elif field_region == 'near':
-            field_region_distance, field_region_distance_units = torfile.get_nearfield_distance(tordict, cutname)
-            field_region_distance_m = (field_region_distance * ureg[field_region_distance_units]).to('m').magnitude
-        else:
+        elif field_region == 'far':
             field_region_distance_m = np.inf
+        else:
+            field_region_distance, field_region_distance_units = torfile.get_nearfield_distance(tordict, cutname)
+            field_region_distance_m = (field_region_distance * ureg[field_region_distance_units]).to('m').magnitude            
             
         # frequency
         try:
@@ -311,7 +314,7 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
     elif userinfo:
         
         # TICRA TOOLS 23.1.0 p. 2079...
-        class_name_options = labels.grid_type.keys() # ['spherical_cut', 'planar_cut', 'cylindrical_cut', 'surface_cut']
+        class_name_options = labels.cut_type.keys() # ['spherical_cut', 'planar_cut', 'cylindrical_cut', 'surface_cut']
         field_name_options = {
             'spherical_cut': ['e_field', 'h_field'],
             'planar_cut': ['e_field', 'h_field'],
@@ -371,15 +374,15 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
         raise
 
     # given all the properties: define labels from user manual
-    coordinate_system_type = labels.cut_type[class_name][cutdict['icut']] # e.g. {'name': 'polar', 'coords': ('phi', 'theta'), 'units': ('deg', 'deg'), 'tex': ('\\phi', '\\theta')}
-    polarization_type = labels.cut_polarization[class_name][cutdict['icomp']][0] # e.g. linear
+    coordinate_system = labels.cut_type[class_name][cutdict['icut']] # e.g. {'name': 'polar', 'coords': ('phi', 'theta'), 'units': ('deg', 'deg'), 'tex': ('\\phi', '\\theta')}
+    polarisation = labels.cut_polarization[class_name][cutdict['icomp']][0] # e.g. linear
     field_components_mathnames = labels.cut_polarization[class_name][cutdict['icomp']][1] # e.g. ['E_{co}', 'E_{cx}', 'E_r']
     field_components_mathnames = field_components_mathnames[0:cutdict['ncomp']] # e.g. ['E_{co}', 'E_{cx}']
     
     # replace fieldnames
-    # surface_grid: e.g. E_{i,\,co} --> H_{r,\,co}
-    # all other grids: e.g. E_{co} --> H_{co}
-    if class_name == 'surface_grid': 
+    # surface_cut: e.g. E_{i,\,co} --> H_{r,\,co}
+    # all other cuts: e.g. E_{co} --> H_{co}
+    if class_name == 'surface_cut': 
         if field_name == 'incident_h_field':
             field_components_mathnames = [el.replace('E', 'H') for el in field_components_mathnames]
         elif field_name == 'reflected_e_field':
@@ -397,7 +400,7 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
         pass
     
     # determine units of the field components
-    field_components_unitsystem, field_components_mathunits = labels.units_of_components(polarization_type, field_region)
+    field_components_unitsystem, field_components_mathunits = labels.units_of_components(polarisation, field_region)
         
     # gather all the information
     inputinfodict = {
@@ -407,12 +410,12 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
         'field_region_distance_m': field_region_distance_m, # torfile/user: e.g. 6 (optional)
         'freqs_Hz': freqs_Hz} # torfile/user (optional)
     outputinfodict = {
-        'coordinate_system_type': coordinate_system_type, # icut + class_name --> e.g. spherical_cut: polar, conical -->  {'name': 'polar', 'coords': ('phi', 'theta'), 'units': ('deg', 'deg'), 'tex': ('\\phi', '\\theta')}
-        'polarization_type': polarization_type, # icomp + class_name --> e.g. spherical_cut: linear, total power, ...
+        'coordinate_system': coordinate_system, # icut + class_name --> e.g. spherical_cut: polar, conical -->  {'name': 'polar', 'coords': ('phi', 'theta'), 'units': ('deg', 'deg'), 'tex': ('\\phi', '\\theta')}
+        'polarisation': polarisation, # icomp + class_name --> e.g. spherical_cut: linear, total power, ...
         'field_region': field_region, # ncomp / torfile --> near_field / far_field
         'field_components_mathnames': field_components_mathnames, # ncomp + class_name + field_name --> e.g. spherical_cut: ['E_{co}', 'E_{cx}', 'E_r']
-        'field_components_unitsystem': field_components_unitsystem, # icomp + class_name (polarization_type & field_region) --> e.g. spherical
-        'field_components_mathunits': field_components_mathunits} # icomp + class_name (polarization_type & field_region)
+        'field_components_unitsystem': field_components_unitsystem, # icomp + class_name (polarisation & field_region) --> e.g. spherical
+        'field_components_mathunits': field_components_mathunits} # icomp + class_name (polarisation & field_region)
     infodict = {**inputinfodict,**outputinfodict}
 
     return infodict
@@ -423,14 +426,14 @@ def dict2xarray(cutinfodict: dict) -> xr.DataArray:
     """
 
     # combine the information (x: fix coordinate, y: varying coordinate)
-    xlabel = cutinfodict['coordinate_system_type']['coords'][0]
-    ylabel = cutinfodict['coordinate_system_type']['coords'][1]
-    xunits = cutinfodict['coordinate_system_type']['units'][0]
-    yunits = cutinfodict['coordinate_system_type']['units'][1]
-    xlabel_tex = cutinfodict['coordinate_system_type']['coords_math'][0]
-    ylabel_tex = cutinfodict['coordinate_system_type']['coords_math'][1]
-    xunits_tex = cutinfodict['coordinate_system_type']['units_math'][0]
-    yunits_tex = cutinfodict['coordinate_system_type']['units_math'][1]
+    xlabel = cutinfodict['coordinate_system']['coords'][0]
+    ylabel = cutinfodict['coordinate_system']['coords'][1]
+    xunits = cutinfodict['coordinate_system']['units'][0]
+    yunits = cutinfodict['coordinate_system']['units'][1]
+    xlabel_tex = cutinfodict['coordinate_system']['coords_math'][0]
+    ylabel_tex = cutinfodict['coordinate_system']['coords_math'][1]
+    xunits_tex = cutinfodict['coordinate_system']['units_math'][0]
+    yunits_tex = cutinfodict['coordinate_system']['units_math'][1]
     xvals = cutinfodict['fix_coordinates']
     yvals = cutinfodict['varying_coordinates']
     compindice = ['a', 'b', 'c'][0:len(cutinfodict['field_components_mathnames'])]
@@ -443,7 +446,7 @@ def dict2xarray(cutinfodict: dict) -> xr.DataArray:
     coords_comp = ('comp', compindice, {
         'long_name': 'field comopnents',
         'field_type': cutinfodict['field_name'],
-        'polarization_type': cutinfodict['polarization_type'],
+        'polarisation': cutinfodict['polarisation'],
         'names_math': cutinfodict['field_components_mathnames'],
         'units_math': cutinfodict['field_components_mathunits'], 
         'unitsystem': cutinfodict['field_components_unitsystem']})
@@ -462,7 +465,7 @@ def dict2xarray(cutinfodict: dict) -> xr.DataArray:
         name = cutinfodict['file_name'],
         attrs = {
             'class_name': cutinfodict['class_name'],
-            'coordinate_system_type': cutinfodict['coordinate_system_type']['name'],
+            'coordinate_system': cutinfodict['coordinate_system']['name'],
             'coordinate_system_name': cutinfodict['coordinate_system_name'],
             'field_region': cutinfodict['field_region'],
             'field_region_distance_m': cutinfodict['field_region_distance_m']})

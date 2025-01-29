@@ -141,12 +141,12 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
         # read gridfile
         griddict = gridfile_grdutils.grid2dict_grd(gridfilepath)
                 
-        # combine cut- and torfile/userinfo
+        # combine grid- and torfile/userinfo
         infodict = gridfile_grdutils.gather_information(griddict, tordict, userinfo)        
         relevant_keys = [
             'file_name', 'class_name', 'field_region', 'field_region_distance_m',
-            'coordinate_system_type', 'coordinate_system_name', 'ycoords', 'xcoords', 
-            'field_name', 'polarization_type', 'field_components_mathnames', 'field_components_mathunits', 'field_components_unitsystem',
+            'coordinate_system', 'coordinate_system_name', 'ycoords', 'xcoords', 
+            'field_name', 'polarisation', 'field_components_mathnames', 'field_components_mathunits', 'field_components_unitsystem',
             'freqs_Hz', 'data']
         gridinfodict = {k:v for k,v in {**griddict, **infodict}.items() if k in relevant_keys}
         
@@ -158,6 +158,10 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
         raise Exception('Please finish implementation! (other information in file...)')
         gridinfodict = gridfile_h5utils.grid2dict_h5(gridfilepath)
         da = dict2xarray(gridinfodict)
+        
+    else:
+        
+        raise Exception('Gridfile extension must .grid or .h5 (given file: %s)' % gridfilepath)
     
     return da
 
@@ -167,14 +171,14 @@ def dict2xarray(gridinfodict: dict) -> xr.DataArray:
     """
 
     # combine the information (x: fix coordinate, y: varying coordinate)
-    xlabel = gridinfodict['coordinate_system_type']['coords'][0]
-    ylabel = gridinfodict['coordinate_system_type']['coords'][1]
-    xunits = gridinfodict['coordinate_system_type']['units'][0]
-    yunits = gridinfodict['coordinate_system_type']['units'][1]
-    xlabel_tex = gridinfodict['coordinate_system_type']['coords_math'][0]
-    ylabel_tex = gridinfodict['coordinate_system_type']['coords_math'][1]
-    xunits_tex = gridinfodict['coordinate_system_type']['units_math'][0]
-    yunits_tex = gridinfodict['coordinate_system_type']['units_math'][1]
+    xlabel = gridinfodict['coordinate_system']['coords'][0]
+    ylabel = gridinfodict['coordinate_system']['coords'][1]
+    xunits = gridinfodict['coordinate_system']['units'][0]
+    yunits = gridinfodict['coordinate_system']['units'][1]
+    xlabel_tex = gridinfodict['coordinate_system']['coords_math'][0]
+    ylabel_tex = gridinfodict['coordinate_system']['coords_math'][1]
+    xunits_tex = gridinfodict['coordinate_system']['units_math'][0]
+    yunits_tex = gridinfodict['coordinate_system']['units_math'][1]
     xvals = gridinfodict['xcoords']
     yvals = gridinfodict['ycoords']
     compindice = ['a', 'b', 'c'][0:len(gridinfodict['field_components_mathnames'])]
@@ -187,7 +191,7 @@ def dict2xarray(gridinfodict: dict) -> xr.DataArray:
     coords_comp = ('comp', compindice, {
         'long_name': 'field comopnents', 
         'field_type': gridinfodict['field_name'],
-        'polarization_type': gridinfodict['polarization_type'],
+        'polarisation': gridinfodict['polarisation'],
         'names_math': gridinfodict['field_components_mathnames'],
         'units_math': gridinfodict['field_components_mathunits'], 
         'unitsystem': gridinfodict['field_components_unitsystem']})
@@ -200,7 +204,7 @@ def dict2xarray(gridinfodict: dict) -> xr.DataArray:
         name = gridinfodict['file_name'],
         attrs = {
             'class_name': gridinfodict['class_name'],
-            'coordinate_system_type': gridinfodict['coordinate_system_type']['name'],
+            'coordinate_system': gridinfodict['coordinate_system']['name'],
             'coordinate_system_name': gridinfodict['coordinate_system_name'],
             'field_region': gridinfodict['field_region'],
             'field_region_distance_m': gridinfodict['field_region_distance_m']})
