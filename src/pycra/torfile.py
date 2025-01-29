@@ -67,7 +67,7 @@ def read_frequencies(tordict, objname):
     Read frequency values from .tor file.
     To do so, find first object of object class "frequency" and extract frequencies.
     """
-
+    
     ureg = pint.UnitRegistry()
     
     # get frequency key

@@ -70,29 +70,7 @@ def grid2dict_grd(gridfilepath: Path):
         # vals = [info[1] for info in headerinfo]
         # source_indice = [ii for ii,attr in enumerate(attrs) if attr.lower() == 'source_field_name']
         # sources = [vals[ii] for ii in source_indice]
-
-        # (3) extract frequency information if available. Take frequencies from first appearance.
         
-        freq_indice = [ii for ii,attr in enumerate(header) if re.search('(frequencies \[[a-zA-Z]+\]:)',attr.lower())]
-        if freq_indice:
-            freqs_unit = re.search('\[([a-zA-Z]+)\]', header[freq_indice[0]]).groups()[0]
-            freqs = [float(ff) for ff in header[freq_indice[0]+1].split()]
-            freqs_Hz = [(freq * ureg[freqs_unit]).to('Hz').magnitude for freq in freqs]
-        else:
-            wavelength_indice = [ii for ii,attr in enumerate(header) if re.search('(wavelengths \[[a-zA-Z]+\]:)',attr.lower())]
-            if wavelength_indice:
-                speedoflight = 299792458
-                wavelengths_unit = re.search('\[([a-zA-Z]+)\]', header[wavelength_indice[0]]).groups()[0]
-                wavelengths = [float(ff) for ff in header[wavelength_indice[0]+1].split()]
-                wavelengths = [(wavelength * ureg[wavelengths_unit]).to('m').magnitude for wavelength in wavelengths]
-                freqs_Hz = [speedoflight / wavelength for wavelength in wavelengths]
-            else:
-                freqs_Hz = None
-                print('\n')
-                print('No frequency information in grid-file (or error): %s' % gridfilepath)
-                print(header)
-                print('\n')
-
         # Following ++++ comes more information about type of file format etc.
         # KTYPE = 1 - standard format for 2D grid. For files used in GRASP this variable is always 1.
         # NSET - Number of field sets or beams.
@@ -102,10 +80,39 @@ def grid2dict_grd(gridfilepath: Path):
         ktype = int(file_grid.readline().strip())
         nset, icomp, ncomp, igrid = [int(s) for s in file_grid.readline().split()]
         assert ktype == 1
-        if freqs_Hz is not None:
-            assert nset == len(freqs_Hz)
+
+        # (3) extract frequency information if available. Take frequencies from first appearance.
+        # Notice that frequencies can be written over several lines (we discovered that every 5th frequency stands on a new line). Example for 5 frequencies:
+        # ['VERSION: TICRA-EM-FIELD-V0.1\n', 'Field data in grid\n', 'SOURCE_FIELD_NAME: C1_all_feed\n', 'SOURCE_FIELD_NAME: C2_all_feed\n', 
+        #    'SOURCE_FIELD_NAME: C3_all_feed\n', 'SOURCE_FIELD_NAME: C4_all_feed\n', 'FREQUENCY_NAME: C_f_all\n', 
+        #    'FREQUENCIES [GHz]:\n', '  0.6665000000E+01  0.6675000000E+01  0.6875000000E+01  0.7075000000E+01\n', '  0.7087000000E+01\n']
+        
+        max_nrfreqs_per_line = 4
+        freq_indice = [ii for ii,attr in enumerate(header) if re.search('(frequencies \[[a-zA-Z]+\]:)',attr.lower())]
+        if freq_indice:
+            freqs_unit = re.search('\[([a-zA-Z]+)\]', header[freq_indice[0]]).groups()[0]
+            nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
+            freqstr = ' '.join([header[freq_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
+            freqs = [float(ff) for ff in freqstr.split()]
+            freqs_Hz = [(freq * ureg[freqs_unit]).to('Hz').magnitude for freq in freqs]
         else:
-            freqs_Hz = [np.nan]*nset
+            wavelength_indice = [ii for ii,attr in enumerate(header) if re.search('(wavelengths \[[a-zA-Z]+\]:)',attr.lower())]
+            if wavelength_indice:
+                speedoflight = 299792458
+                wavelengths_unit = re.search('\[([a-zA-Z]+)\]', header[wavelength_indice[0]]).groups()[0]
+                nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
+                freqstr = ' '.join([header[freq_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
+                wavelengths = [float(ff) for ff in freqstr.split()]
+                wavelengths = [(wavelength * ureg[wavelengths_unit]).to('m').magnitude for wavelength in wavelengths]
+                freqs_Hz = [speedoflight / wavelength for wavelength in wavelengths]
+            else:
+                freqs_Hz = [np.nan]*nset
+                print('\n')
+                print('No frequency information in grid-file (or error): %s' % gridfilepath)
+                print(header)
+                print('\n')
+
+        # loop over lines with zeros... (see e.g. TICRA-TOOLS-23.1.0-Manual, p. 3257)
         beamc = [[float(s) for s in file_grid.readline().split()] for _ in range(nset)]
         
         # Read grid information (is repeated later)
