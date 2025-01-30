@@ -168,6 +168,15 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
 def dict2xarray(gridinfodict: dict) -> xr.DataArray:
     """
     store dictionary as Xarray
+    
+    https://docs.xarray.dev/en/latest/user-guide/plotting.html
+    https://cfconventions.org/Data/cf-conventions/cf-conventions-1.7/build/ch03s03.html
+    Xarray uses the coordinate name along with metadata: 
+    - attrs.long_name 
+    - attrs.standard_name
+    - DataArray.name
+    - attrs.units
+    
     """
 
     # combine the information (x: fix coordinate, y: varying coordinate)
