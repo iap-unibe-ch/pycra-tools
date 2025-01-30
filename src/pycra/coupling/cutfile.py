@@ -210,12 +210,12 @@ def gather_information(cutfilepath: dict, tordict: dict = {}) -> dict:
             raise
 
         comment = torinfo['comment'] if 'comment' in torinfo.keys() else None
-        receiver_sources = re.findall('ref\((.*?)\)', torinfo['receiver_sources'])
+        receiver_sources = re.findall(r'ref\((.*?)\)', torinfo['receiver_sources'])
         amplitude_only = torinfo['amplitude_only'] if 'amplitude_only' in torinfo.keys() else 'off'
         cqlist = torinfo['list'] if 'list' in torinfo.keys() else 'off'
         file_name = torinfo['file_name'] if 'file_name' in torinfo.keys() else None
         file_form = torinfo['file_form'] if 'file_form' in torinfo.keys() else 'cuts'
-        movement_definition = re.search('ref\((.+)\)', torinfo['movement_definition']).groups()[0] if 'movement_definition' in torinfo.keys() else None
+        movement_definition = re.search(r'ref\((.+)\)', torinfo['movement_definition']).groups()[0] if 'movement_definition' in torinfo.keys() else None
                 
         # read frequencies
         freqs_Hz = torfile.read_frequencies(tordict, objname=cutname)
@@ -231,20 +231,20 @@ def gather_information(cutfilepath: dict, tordict: dict = {}) -> dict:
             
             # resolve references like ref(distance_antenna2reflector)
             movspecstring = tordict[movement_definition]['movements']
-            references = re.findall('ref\(([^\)]+)\)',movspecstring)
+            references = re.findall(r'ref\(([^\)]+)\)',movspecstring)
             for reference in references:
                 valstr = torfile.get_real_variable(tordict,reference)
                 movspecstring = movspecstring.replace('ref(%s)'%reference, valstr)
             
             # no there are no brackets left except for following: sequence( struct(...), struct(...), ... )
-            movspecs = re.findall('(struct\([^\)]+\))', movspecstring)
+            movspecs = re.findall(r'(struct\([^\)]+\))', movspecstring)
             movdicts = [
-                {'movement': re.search('movement:\s?([^,]+)', movspec).groups()[0], 
-                'axis': re.search('axis:\s?([^,]+)', movspec).groups()[0],
-                'start': eval(re.search('start:\s?"?([^,"]+)', movspec).groups()[0]),
-                'end': eval(re.search('end:\s?"?([^,"]+)', movspec).groups()[0]),
-                'number': int(eval(re.search('number:\s?"?([^,"]+)', movspec).groups()[0])),
-                'length_unit': re.search('length_unit:\s?([^\)]+)', movspec).groups()[0]}
+                {'movement': re.search(r'movement:\s?([^,]+)', movspec).groups()[0], 
+                'axis': re.search(r'axis:\s?([^,]+)', movspec).groups()[0],
+                'start': eval(re.search(r'start:\s?"?([^,"]+)', movspec).groups()[0]),
+                'end': eval(re.search(r'end:\s?"?([^,"]+)', movspec).groups()[0]),
+                'number': int(eval(re.search(r'number:\s?"?([^,"]+)', movspec).groups()[0])),
+                'length_unit': re.search(r'length_unit:\s?([^\)]+)', movspec).groups()[0]}
                 for movspec in movspecs]
                                     
         infodict = {

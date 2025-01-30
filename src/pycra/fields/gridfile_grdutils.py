@@ -65,7 +65,7 @@ def grid2dict_grd(gridfilepath: Path):
         #     [('VERSION', 'TICRA-EM-FIELD-V0.1'), 
         #      ('SOURCE_FIELD_NAME', 'single_feed'), ('FREQUENCY_NAME', 'single_frequencies'), ('FREQUENCIES [GHz]', '0.1160000000E+02  0.1180000000E+02  0.1200000000E+02  0.1220000000E+02'), 
         #      ('SOURCE_FIELD_NAME', 'single_po'), ('FREQUENCY_NAME', 'single_frequencies'), ('FREQUENCIES [GHz]', '  0.1160000000E+02  0.1180000000E+02  0.1200000000E+02  0.1220000000E+02')]
-        # headerinfo = re.findall('([^\n]*):\s+?([^\n]*)', ''.join(header))
+        # headerinfo = re.findall(r'([^\n]*):\s+?([^\n]*)', ''.join(header))
         # attrs = [info[0] for info in headerinfo]
         # vals = [info[1] for info in headerinfo]
         # source_indice = [ii for ii,attr in enumerate(attrs) if attr.lower() == 'source_field_name']
@@ -88,7 +88,7 @@ def grid2dict_grd(gridfilepath: Path):
         #    'FREQUENCIES [GHz]:\n', '  0.6665000000E+01  0.6675000000E+01  0.6875000000E+01  0.7075000000E+01\n', '  0.7087000000E+01\n']
         
         max_nrfreqs_per_line = 4
-        freq_indice = [ii for ii,attr in enumerate(header) if re.search('(frequencies \[[a-zA-Z]+\]:)',attr.lower())]
+        freq_indice = [ii for ii,attr in enumerate(header) if re.search(r'(frequencies \[[a-zA-Z]+\]:)',attr.lower())]
         if freq_indice:
             freqs_unit = re.search('\[([a-zA-Z]+)\]', header[freq_indice[0]]).groups()[0]
             nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
@@ -96,10 +96,10 @@ def grid2dict_grd(gridfilepath: Path):
             freqs = [float(ff) for ff in freqstr.split()]
             freqs_Hz = [(freq * ureg[freqs_unit]).to('Hz').magnitude for freq in freqs]
         else:
-            wavelength_indice = [ii for ii,attr in enumerate(header) if re.search('(wavelengths \[[a-zA-Z]+\]:)',attr.lower())]
+            wavelength_indice = [ii for ii,attr in enumerate(header) if re.search(r'(wavelengths \[[a-zA-Z]+\]:)',attr.lower())]
             if wavelength_indice:
                 speedoflight = 299792458
-                wavelengths_unit = re.search('\[([a-zA-Z]+)\]', header[wavelength_indice[0]]).groups()[0]
+                wavelengths_unit = re.search(r'\[([a-zA-Z]+)\]', header[wavelength_indice[0]]).groups()[0]
                 nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
                 freqstr = ' '.join([header[freq_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
                 wavelengths = [float(ff) for ff in freqstr.split()]

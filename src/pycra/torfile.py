@@ -14,9 +14,6 @@ def tor2dict(filepath: str) -> dict:
         dict_grasoobj = {'single_frequencies': {'class_name': 'frequency', 'frequency_list': 'sequence(11.0 GHz,12.0 GHz)'}, ...}
 
     """
-
-    # non-empty lines between arenthesis start with indent line: '  frequency_list   : '
-    attribute_chars = ' '*2 + '([^\s]*)\s+:\s(.*)'
     
     # read the file
     with open(Path(filepath)) as f:
@@ -38,7 +35,8 @@ def tor2dict(filepath: str) -> dict:
         tordict[display_name] = {'class_name': class_name}
         for idx in range(ii+1,jj):
             # search and store attributes and corresponding values
-            mm = re.search(attribute_chars, lines[idx])
+            # non-empty lines between parenthesis start with indent line: '  frequency_list   : '
+            mm = re.search(r'\s{2}([^\s]*)\s+:\s(.*)', lines[idx])
             add_to_previous = False
             if not mm:
                 add_to_previous = True
@@ -76,8 +74,7 @@ def read_frequencies(tordict, objname):
         print('torinfo: %s' % tordict[objname])
         raise
     else: # check reference to another frequency object
-        regexformat = 'ref\((.*)\)'
-        mm = re.search(regexformat, tordict[objname]['frequency'])
+        mm = re.search(r'ref\((.*)\)', tordict[objname]['frequency'])
         frequency_object_name = mm.groups()[0] if mm else ''
         #########
         if not frequency_object_name:
@@ -99,19 +96,18 @@ def read_frequencies(tordict, objname):
         freqstr = tordict[frequency_object_name]['frequency_list']
         
         # replace references
-        references = re.findall('ref\(([^\)]+)\)',freqstr)
+        references = re.findall(r'ref\(([^\)]+)\)',freqstr)
         for reference in references:
             valstr = get_real_variable(tordict,reference)
             freqstr = freqstr.replace('ref(%s)'%reference, valstr)
         
         # retrieve numeric values
-        freqsformat = 'sequence\((.*)\)'
-        mm = re.search(freqsformat, freqstr)
+        mm = re.search(r'sequence\((.*)\)', freqstr)
         if not mm:
-            print('Failed to read frequencies! Not in following regex format: %s' % freqsformat)
+            print('Failed to read frequencies: %s' % freqstr)
             raise
         else:
-            freqs_units = re.findall('"?([^\s"]+)"?\s([a-zA-Z]+),?', mm.groups()[0]) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
+            freqs_units = re.findall(r'"?([^\s"]+)"?\s([a-zA-Z]+),?', mm.groups()[0]) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
             freqs_Hz = [(eval(freq)*ureg[unit]).to('Hz').magnitude for freq,unit in freqs_units]
 
     elif freqdict['class_name'] == 'frequency_range':
@@ -119,15 +115,15 @@ def read_frequencies(tordict, objname):
         freqstr = tordict[frequency_object_name]['frequency_range']
         
         # replace references
-        references = re.findall('ref\(([^\)]+)\)',freqstr)
+        references = re.findall(r'ref\(([^\)]+)\)',freqstr)
         for reference in references:
             valstr = get_real_variable(tordict,reference)
             freqstr = freqstr.replace('ref(%s)'%reference, valstr)
         
         # retrieve numeric values
-        mm_startfreq = re.search('start_frequency:\s'+'"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
-        mm_endfreq = re.search('end_frequency:\s'+'"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
-        mm_nrfreq = re.search('number_of_frequencies:\s'+'"?([^\s"\)]+)"?', freqstr) # ([0-9]+)
+        mm_startfreq = re.search(r'start_frequency:\s'+'"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
+        mm_endfreq = re.search(r'end_frequency:\s'+'"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
+        mm_nrfreq = re.search(r'number_of_frequencies:\s'+'"?([^\s"\)]+)"?', freqstr) # ([0-9]+)
         startfreq = eval(mm_startfreq.groups()[0]) * ureg[mm_startfreq.groups()[1]]
         startfreq_Hz = startfreq.to('Hz').magnitude
         endfreq = eval(mm_endfreq.groups()[0]) * ureg[mm_endfreq.groups()[1]]
@@ -141,19 +137,18 @@ def read_frequencies(tordict, objname):
         freqstr = tordict[frequency_object_name]['wavelength_list']
         
         # replace references
-        references = re.findall('ref\(([^\)]+)\)',freqstr)
+        references = re.findall(r'ref\(([^\)]+)\)',freqstr)
         for reference in references:
             value = get_real_variable(tordict,reference)
             freqstr = freqstr.replace('ref(%s)'%reference, str(value))
         
         # retrieve numeric values
-        freqsformat = 'sequence\((.*)\)'
-        mm = re.search(freqsformat, freqstr)
+        mm = re.search(r'sequence\((.*)\)', freqstr)
         if not mm:
-            print('Failed to read wavelengths! Not in following regex format: %s' % freqsformat)
+            print('Failed to read wavelengths: %s' % freqstr)
             raise
         else: 
-            wavelengths_units = re.findall('"?([^\s"]+)"?\s([a-zA-Z]+),?', mm.groups()[0]) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
+            wavelengths_units = re.findall(r'"?([^\s"]+)"?\s([a-zA-Z]+),?', mm.groups()[0]) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
             wavelengths = [(eval(wavelength)*ureg[unit]).to('m').magnitude for wavelength,unit in wavelengths_units]
             freqs_Hz = [speedoflight / wavelength for wavelength in wavelengths]
         
@@ -163,15 +158,15 @@ def read_frequencies(tordict, objname):
         freqstr = tordict[frequency_object_name]['wavelength_range']
         
         # replace references
-        references = re.findall('ref\(([^\)]+)\)',freqstr)
+        references = re.findall(r'ref\(([^\)]+)\)',freqstr)
         for reference in references:
             valstr = get_real_variable(tordict,reference)
             freqstr = freqstr.replace('ref(%s)'%reference, valstr)
         
         # retrieve numeric values
-        mm_startw = re.search('start_wavelength:\s'+'"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
-        mm_endw = re.search('end_wavelength:\s'+'"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
-        mm_nrw = re.search('number_of_wavelengths:\s'+'"?([^\s"\)]+)"?', freqstr) # ([0-9]+)
+        mm_startw = re.search(r'start_wavelength:\s'+'"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
+        mm_endw = re.search(r'end_wavelength:\s'+'"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
+        mm_nrw = re.search(r'number_of_wavelengths:\s'+'"?([^\s"\)]+)"?', freqstr) # ([0-9]+)
         startw = eval(mm_startw.groups()[0]) * ureg[mm_startw.groups()[1]]
         startw_m = startw.to('m').magnitude
         endw = eval(mm_endw.groups()[0]) * ureg[mm_endw.groups()[1]]
@@ -190,8 +185,7 @@ def read_frequencies(tordict, objname):
 def get_coordinate_system_name(torinfo):
 
     if 'coor_sys' in torinfo.keys():
-        regexformat = 'ref\((.*)\)'
-        mm = re.search(regexformat, torinfo['coor_sys'])
+        mm = re.search(r'ref\((.*)\)', torinfo['coor_sys'])
         coordinate_system_name = mm.groups()[0]
     else:
         coordinate_system_name = 'None'
@@ -213,8 +207,7 @@ def get_nearfield_distance(tordict, gridname):
         distance = 0
         units = 'm'
     else:
-        regexformat = '"ref\((.*)\)" (.*)'
-        mm = re.search(regexformat, torinfo[keyword])
+        mm = re.search(r'"ref\((.*)\)" (.*)', torinfo[keyword])
         if mm:
             varname = mm.groups()[0]
             units = mm.groups()[1]
@@ -274,11 +267,11 @@ def get_real_variable(tordict, varname):
     """
 
     valstr = tordict[varname]['value']
-    references = re.findall('ref\(([^\)]+)\)',valstr)
+    references = re.findall(r'ref\(([^\)]+)\)',valstr)
     for reference in references:
         valstr_next = get_real_variable(tordict,reference) # recursion
         valstr = valstr.replace('ref(%s)'%reference, "(%s)"%valstr_next) # add brackets to ensure correct multiplications etc. in equations
-    valstr = re.search('^"?([^"]+)"?$',valstr).groups()[0] # drop quotation marks
+    valstr = re.search(r'^"?([^"]+)"?$',valstr).groups()[0] # drop quotation marks
         
     return valstr
 
