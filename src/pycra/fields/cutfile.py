@@ -131,7 +131,7 @@ def readcut(cutfilepath: str, torfilepath: str = '', tordict: dict = {},
     
     Retrieved information
     - coor_sys : polar, conical, axial, radial, ... (different choices for different classes)
-    - polarization : linear, ...
+    - polarisation : linear, ...
     - frequency        
     - near_far
     - near_dist
@@ -143,7 +143,7 @@ def readcut(cutfilepath: str, torfilepath: str = '', tordict: dict = {},
     spherical_cut
     - theta_range
     - phi_range
-    - polarization_modification
+    - polarisation_modification
 
     planar_cut
     - rho_range
@@ -375,8 +375,8 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
 
     # given all the properties: define labels from user manual
     coordinate_system = labels.cut_type[class_name][cutdict['icut']] # e.g. {'name': 'polar', 'coords': ('phi', 'theta'), 'units': ('deg', 'deg'), 'tex': ('\\phi', '\\theta')}
-    polarisation = labels.cut_polarization[class_name][cutdict['icomp']][0] # e.g. linear
-    field_components_mathnames = labels.cut_polarization[class_name][cutdict['icomp']][1] # e.g. ['E_{co}', 'E_{cx}', 'E_r']
+    polarisation = labels.cut_polarisation[class_name][cutdict['icomp']][0] # e.g. linear
+    field_components_mathnames = labels.cut_polarisation[class_name][cutdict['icomp']][1] # e.g. ['E_{co}', 'E_{cx}', 'E_r']
     field_components_mathnames = field_components_mathnames[0:cutdict['ncomp']] # e.g. ['E_{co}', 'E_{cx}']
     
     # replace fieldnames
@@ -384,18 +384,18 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
     # all other cuts: e.g. E_{co} --> H_{co}
     if class_name == 'surface_cut': 
         if field_name == 'incident_h_field':
-            field_components_mathnames = [el.replace('E', 'H') for el in field_components_mathnames]
+            field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
         elif field_name == 'reflected_e_field':
-            field_components_mathnames = [el.replace('E_{i','E_{r') for el in field_components_mathnames]
+            field_components_mathnames = [el.replace(r'E_{i',r'E_{r') for el in field_components_mathnames]
         elif field_name == 'reflected_h_field':
-            field_components_mathnames = [el.replace('E_{i','E_{r') for el in field_components_mathnames]
-            field_components_mathnames = [el.replace('E', 'H') for el in field_components_mathnames]
+            field_components_mathnames = [el.replace(r'E_{i',r'E_{r') for el in field_components_mathnames]
+            field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
         elif field_name == 'currents':
-            field_components_mathnames = [el.replace('E', 'I') for el in field_components_mathnames]
+            field_components_mathnames = [el.replace(r'E', r'I') for el in field_components_mathnames]
         else: # field_name == 'incident_e_field'
             pass
     elif field_name == 'h_field': 
-            field_components_mathnames = [el.replace('E', 'H') for el in field_components_mathnames]
+            field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
     else: # field_name == 'e_field'
         pass
     
@@ -432,17 +432,13 @@ def dict2xarray(cutinfodict: dict) -> xr.DataArray:
     yunits = cutinfodict['coordinate_system']['units'][1]
     xlabel_tex = cutinfodict['coordinate_system']['coords_math'][0]
     ylabel_tex = cutinfodict['coordinate_system']['coords_math'][1]
-    xunits_tex = cutinfodict['coordinate_system']['units_math'][0]
-    yunits_tex = cutinfodict['coordinate_system']['units_math'][1]
     xvals = cutinfodict['fix_coordinates']
     yvals = cutinfodict['varying_coordinates']
     compindice = ['a', 'b', 'c'][0:len(cutinfodict['field_components_mathnames'])]
 
     # prepare coordinates to assign to array
-    coords_Y = ('Y', yvals, {'long_name': 'Y-coordinate (varying)', 'name': ylabel, 'units': yunits, 
-        'name_math': ylabel_tex, 'units_math': yunits_tex})
-    coords_X = ('X', xvals, {'long_name': 'X-coordinate (fix)', 'name': xlabel, 'units': xunits, 
-        'name_math': xlabel_tex, 'units_math': xunits_tex})
+    coords_Y = ('Y', yvals, {'long_name': ylabel, 'texname': ylabel_tex, 'units': yunits})
+    coords_X = ('X', xvals, {'long_name': xlabel, 'texname': xlabel_tex, 'units': xunits})
     coords_comp = ('comp', compindice, {
         'long_name': 'field comopnents',
         'field_type': cutinfodict['field_name'],
@@ -462,8 +458,8 @@ def dict2xarray(cutinfodict: dict) -> xr.DataArray:
         # name = str(Path(cutinfodict['file_name']).stem,
         data = cutinfodict['data'],
         coords = [coords_Y, coords_X, coords_comp, coords_freq],
-        name = cutinfodict['file_name'],
         attrs = {
+            'filename': cutinfodict['file_name'],
             'class_name': cutinfodict['class_name'],
             'coordinate_system': cutinfodict['coordinate_system']['name'],
             'coordinate_system_name': cutinfodict['coordinate_system_name'],

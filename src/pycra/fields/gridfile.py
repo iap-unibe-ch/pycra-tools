@@ -177,17 +177,13 @@ def dict2xarray(gridinfodict: dict) -> xr.DataArray:
     yunits = gridinfodict['coordinate_system']['units'][1]
     xlabel_tex = gridinfodict['coordinate_system']['coords_math'][0]
     ylabel_tex = gridinfodict['coordinate_system']['coords_math'][1]
-    xunits_tex = gridinfodict['coordinate_system']['units_math'][0]
-    yunits_tex = gridinfodict['coordinate_system']['units_math'][1]
     xvals = gridinfodict['xcoords']
     yvals = gridinfodict['ycoords']
     compindice = ['a', 'b', 'c'][0:len(gridinfodict['field_components_mathnames'])]
 
     # prepare coordinates to assign to array
-    coords_Y = ('Y', yvals, {'long_name': 'Y-coordinate', 'name': ylabel, 'units': yunits,
-                             'name_math': ylabel_tex, 'units_math': yunits_tex})
-    coords_X = ('X', xvals, {'long_name': 'X-coordinate', 'name': xlabel, 'units': xunits,
-                             'name_math': xlabel_tex, 'units_math': xunits_tex})
+    coords_Y = ('Y', yvals, {'long_name': ylabel, 'texname': ylabel_tex, 'units': yunits})
+    coords_X = ('X', xvals, {'long_name': xlabel, 'texname': xlabel_tex, 'units': xunits})
     coords_comp = ('comp', compindice, {
         'long_name': 'field comopnents', 
         'field_type': gridinfodict['field_name'],
@@ -201,8 +197,8 @@ def dict2xarray(gridinfodict: dict) -> xr.DataArray:
         # name = str(Path(gridinfodict['file_name']).stem,
         data = gridinfodict['data'],
         coords = [coords_Y, coords_X, coords_comp, coords_freq],
-        name = gridinfodict['file_name'],
         attrs = {
+            'filename': gridinfodict['file_name'],
             'class_name': gridinfodict['class_name'],
             'coordinate_system': gridinfodict['coordinate_system']['name'],
             'coordinate_system_name': gridinfodict['coordinate_system_name'],

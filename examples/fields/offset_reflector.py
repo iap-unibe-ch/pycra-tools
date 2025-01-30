@@ -24,11 +24,7 @@ def main():
     | - "da.attrs": auxiliary information               |
     -----------------------------------------------------
     
-    <xarray.DataArray '/home/phjschmid/phdphysics/code/projects/pycra/examples/fields/offset_reflector/Job_01/spherical_grid_nearfield_uv_H.grd' (
-                                                                                                                                              Y: 13,
-                                                                                                                                              X: 11,
-                                                                                                                                              comp: 3,
-                                                                                                                                              freq: 1)> Size: 7kB
+    <xarray.DataArray (Y: 13, X: 11, comp: 3, freq: 1)> Size: 7kB
     array([[[[-6.69461264e-05+2.01470450e-05j],
             [-3.05007701e-06+1.85402436e-04j],
             [ 2.12885169e-05+6.53415092e-05j]],
@@ -76,17 +72,20 @@ def main():
     * comp     (comp) <U1 12B 'a' 'b' 'c'
     * freq     (freq) float64 8B 9.993e+09
     Attributes:
+        filename:                 /home/phjschmid/phdphysics/code/projects/pycra/...
         class_name:               spherical_grid
         coordinate_system:        uv
         coordinate_system_name:   single_cut_coor
         field_region:             near
         field_region_distance_m:  1.0
+
     
     ------------
     | da.attrs |
     ------------
     
-    {'class_name': 'spherical_grid', 'coordinate_system': 'uv', 'coordinate_system_name': 'single_cut_coor', 'field_region': 'near', 'field_region_distance_m': 1.0}
+    {'filename': '/home/phjschmid/phdphysics/code/projects/pycra/examples/fields/offset_reflector/Job_01/spherical_grid_nearfield_uv_H.grd', 
+     'class_name': 'spherical_grid', 'coordinate_system': 'uv', 'coordinate_system_name': 'single_cut_coor', 'field_region': 'near', 'field_region_distance_m': 1.0}
     
     "class_name" (da.attrs['class_name'])
     There are different classes of grids and cuts.
@@ -130,11 +129,10 @@ def main():
     Coordinates:
     * X        (X) float64 88B -0.7071 -0.5657 -0.4243 ... 0.4243 0.5657 0.7071
     Attributes:
-        long_name:   X-coordinate
-        name:        u
-        units:       
-        name_math:   u
-        units_math:  
+        long_name:  co-polar
+        texname:    u
+        units:      
+
         
     --------
     | da.Y | (e.g. the dimensionless coordinate "v" in the coordinate system "uv")
@@ -147,11 +145,9 @@ def main():
     Coordinates:
     * Y        (Y) float64 104B 0.7071 0.5893 0.4714 ... -0.4714 -0.5893 -0.7071
     Attributes:
-        long_name:   Y-coordinate
-        name:        v
-        units:       
-        name_math:   v
-        units_math:  
+        long_name:  cross-polar
+        texname:    v
+        units:      
 
     -----------
     | da.comp |
@@ -166,7 +162,7 @@ def main():
         field_type:    h_field
         polarisation:  linear
         names_math:    ['H_{co}', 'H_{cx}', 'H_r']
-        units_math:    ['W^0.5', 'W^0.5', 'W^0.5']
+        units_math:    ['W$^{0.5}$', 'W$^{0.5}$', 'W$^{0.5}$']
         unitsystem:    TICRA
     
     "field_type" (da.comp.attrs['field_type'])

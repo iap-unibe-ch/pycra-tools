@@ -101,7 +101,7 @@ def grid2dict_grd(gridfilepath: Path):
                 speedoflight = 299792458
                 wavelengths_unit = re.search(r'\[([a-zA-Z]+)\]', header[wavelength_indice[0]]).groups()[0]
                 nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
-                freqstr = ' '.join([header[freq_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
+                freqstr = ' '.join([header[wavelength_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
                 wavelengths = [float(ff) for ff in freqstr.split()]
                 wavelengths = [(wavelength * ureg[wavelengths_unit]).to('m').magnitude for wavelength in wavelengths]
                 freqs_Hz = [speedoflight / wavelength for wavelength in wavelengths]
@@ -358,8 +358,8 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
     
     # given all the properties: define labels from user manual
     coordinate_system = labels.grid_type[class_name][griddict['igrid']] # e.g. {'name': 'uv', 'coords': ('u', 'v'), 'units': ('m', 'm'), 'tex': ('u', 'v')}
-    polarisation = labels.grid_polarization[class_name][griddict['icomp']][0] # e.g. linear
-    field_components_mathnames = labels.grid_polarization[class_name][griddict['icomp']][1] # e.g. ['E_{co}', 'E_{cx}', 'E_r']
+    polarisation = labels.grid_polarisation[class_name][griddict['icomp']][0] # e.g. linear
+    field_components_mathnames = labels.grid_polarisation[class_name][griddict['icomp']][1] # e.g. ['E_{co}', 'E_{cx}', 'E_r']
     field_components_mathnames = field_components_mathnames[0:griddict['ncomp']] # e.g. ['E_{co}', 'E_{cx}']
     
     # replace fieldnames
@@ -367,18 +367,18 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
     # all other grids: e.g. E_{co} --> H_{co}
     if class_name == 'surface_grid': 
         if field_name == 'incident_h_field':
-            field_components_mathnames = [el.replace('E', 'H') for el in field_components_mathnames]
+            field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
         elif field_name == 'reflected_e_field':
-            field_components_mathnames = [el.replace('E_{i','E_{r') for el in field_components_mathnames]
+            field_components_mathnames = [el.replace(r'E_{i',r'E_{r') for el in field_components_mathnames]
         elif field_name == 'reflected_h_field':
-            field_components_mathnames = [el.replace('E_{i','E_{r') for el in field_components_mathnames]
-            field_components_mathnames = [el.replace('E', 'H') for el in field_components_mathnames]
+            field_components_mathnames = [el.replace(r'E_{i',r'E_{r') for el in field_components_mathnames]
+            field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
         elif field_name == 'currents':
-            field_components_mathnames = [el.replace('E_{i,\,', 'J_{') for el in field_components_mathnames]
+            field_components_mathnames = [el.replace(r'E_{i,\,', r'J_{') for el in field_components_mathnames]
         else: # field_name == 'incident_e_field'
             pass
     elif field_name == 'h_field': 
-            field_components_mathnames = [el.replace('E', 'H') for el in field_components_mathnames]
+            field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
     else: # field_name == 'e_field'
         pass
     

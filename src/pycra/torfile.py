@@ -121,9 +121,9 @@ def read_frequencies(tordict, objname):
             freqstr = freqstr.replace('ref(%s)'%reference, valstr)
         
         # retrieve numeric values
-        mm_startfreq = re.search(r'start_frequency:\s'+'"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
-        mm_endfreq = re.search(r'end_frequency:\s'+'"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
-        mm_nrfreq = re.search(r'number_of_frequencies:\s'+'"?([^\s"\)]+)"?', freqstr) # ([0-9]+)
+        mm_startfreq = re.search(r'start_frequency:\s"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
+        mm_endfreq = re.search(r'end_frequency:\s"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
+        mm_nrfreq = re.search(r'number_of_frequencies:\s"?([^\s"\)]+)"?', freqstr) # ([0-9]+)
         startfreq = eval(mm_startfreq.groups()[0]) * ureg[mm_startfreq.groups()[1]]
         startfreq_Hz = startfreq.to('Hz').magnitude
         endfreq = eval(mm_endfreq.groups()[0]) * ureg[mm_endfreq.groups()[1]]
@@ -164,9 +164,9 @@ def read_frequencies(tordict, objname):
             freqstr = freqstr.replace('ref(%s)'%reference, valstr)
         
         # retrieve numeric values
-        mm_startw = re.search(r'start_wavelength:\s'+'"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
-        mm_endw = re.search(r'end_wavelength:\s'+'"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
-        mm_nrw = re.search(r'number_of_wavelengths:\s'+'"?([^\s"\)]+)"?', freqstr) # ([0-9]+)
+        mm_startw = re.search(r'start_wavelength:\s"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
+        mm_endw = re.search(r'end_wavelength:\s"?([^\s"]+)"?\s([a-zA-Z]+)', freqstr) # '(\-?[0-9\.E\-]+)\s([a-zA-Z]+)'
+        mm_nrw = re.search(r'number_of_wavelengths:\s"?([^\s"\)]+)"?', freqstr) # ([0-9]+)
         startw = eval(mm_startw.groups()[0]) * ureg[mm_startw.groups()[1]]
         startw_m = startw.to('m').magnitude
         endw = eval(mm_endw.groups()[0]) * ureg[mm_endw.groups()[1]]
