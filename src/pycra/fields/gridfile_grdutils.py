@@ -108,8 +108,14 @@ def grid2dict_grd(gridfilepath: Path):
             else:
                 freqs_Hz = [np.nan]*nset
                 print('\n')
-                print('No frequency information in grid-file (or error): %s' % gridfilepath)
-                print(header)
+                print('Missing frequency information in grid-file: %s' % gridfilepath)
+                print('Given header information: %s' % header)
+                print('See related information in "torfile.read_frequencies".')
+                print('We already had that issue when selecting <None> instead of indicating the frequency.')
+                print('In that case, the frequency information is missing both in the .grd-file and in the .tor-file')
+                print('It seems that GRASP implicitely chooses the frequency indication of the sources that converge on the grid.')
+                print('--> Read .tci-file to identify sources.')
+                print('--> Go back to .tor-file and retrieve the corresponding frequencies.')
                 print('\n')
 
         # loop over lines with zeros... (see e.g. TICRA-TOOLS-23.1.0-Manual, p. 3257)

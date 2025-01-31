@@ -70,24 +70,76 @@ def read_frequencies(tordict, objname):
     
     # get frequency key
     if not 'frequency' in tordict[objname].keys():
-        print('Frequency field not found for object: %s' % objname)
-        print('torinfo: %s' % tordict[objname])
+        
+        print('\n')
+        print('Missing "frequency" field for object: %s' % objname)
+        print('Given information: %s' % tordict[objname])
+        print('We already had that issue when selecting <None> instead of indicating the frequency.')
+        print('In that case, the frequency information is missing both in the .grd-file and in the .tor-file')
+        print('It seems that GRASP implicitely chooses the frequency indication of the sources that converge on the grid.')
+        print('--> Read .tci-file to identify sources.')
+        print('--> Go back to .tor-file and retrieve the corresponding frequencies.')
+        print('\n')
         raise
-    else: # check reference to another frequency object
+    
+        # --------------------------------
+        # Example: LN2_Lx_surface_grid.grd
+        # --------------------------------
+    
+        # .grd-file
+        # Field data in grid
+        # Field from source L_X_all_feed
+        # Field from source wire_grid_Lx_po
+        # ++++
+        # 1
+        # 1   3   3   3
+        # 0   0
+        # -0.7500000000E+00 -0.7500000000E+00  0.7500000000E+00  0.7500000000E+00
+        # 101 101   0
+        # 0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+        # 0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+        
+        # .tor-file
+        # ---------
+        # LN2_Lx_surface_grid  surface_grid  
+        # (
+        # scatterer        : ref(LN2),
+        # x_range          : struct(start: "-ref(d_LN2)/2", end: "ref(d_LN2)/2", np: 101, unit: m),
+        # y_range          : struct(start: "-ref(d_LN2)/2", end: "ref(d_LN2)/2", np: 101)
+        # )
+        
+        # L_X_all_feed  tabulated_swe_coefficients  
+        # (
+        # frequency        : ref(L_f),
+        # coor_sys         : ref(L_cs_tilt),
+        # file_name        : SWEfiles/F_1400_X.swe,
+        # frequency_index_for_plot : 3,
+        # obsolete_coef_def : ab
+        # )
+        
+        # .tci-file:
+        # ----------
+        # ...
+        # FUNCTION wiregrid_reflection 
+        #     COMMAND OBJECT wire_grid_Lx_po get_currents ( source :  &
+        #     sequence(ref(L_X_all_feed)), auto_convergence_of_po : on,  &
+        #     convergence_on_output_grid : sequence(ref(LN2_Lx_surface_grid))) 
+        #     COMMAND OBJECT LN2_Lx_surface_grid get_field ( source :  &
+        #     sequence(ref(L_X_all_feed), ref(wire_grid_Lx_po))) 
+        #     ...
+        # END
+        # QUIT
+    
+    else:
+        
+        # check reference to another frequency object
         mm = re.search(r'ref\((.*)\)', tordict[objname]['frequency'])
         frequency_object_name = mm.groups()[0] if mm else ''
-        #########
         if not frequency_object_name:
-            print('Please inspect frequency attribute of tor-format: %s' % objname)
+            print('Please inspect frequency format for object: %s' % objname)
+            print('Expected rawstring format: %s' % r'ref\((.*)\)')
+            print(tordict[objname])
             raise
-        # if 'frequency' in tordict[objname].keys():
-        #     freqkey = 'frequency'
-        # elif 'frequency_range' in tordict[objname].keys():
-        #     freqkey = 'frequency_range'        
-        # elif 'wavelength' in tordict[objname].keys():
-        #     freqkey = 'wavelength'
-        # elif 'wavelength_range' in tordict[objname].keys():
-        #########
 
     freqdict = tordict[frequency_object_name]
 

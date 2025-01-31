@@ -9,6 +9,12 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
              userinfo: dict = {}) -> xr.DataArray:
     """
     
+    To be done
+    ----------
+    
+    - frequency_group
+    - read .tci file for getting frequencies (when not indicated: see "torfile.read_frequencies" and "gridfile_grdutils.grid2dict_grd")
+    
     Example
     -------
     
