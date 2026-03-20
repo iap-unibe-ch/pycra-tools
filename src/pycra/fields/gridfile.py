@@ -161,8 +161,29 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
         
     elif gridfilepath.suffix == '.h5':
         
-        raise Exception('Please finish implementation! (other information in file...)')
+        # load torfile to dictionary
+        if torfilepath:
+            tordict = torfile.tor2dict(torfilepath)
+        elif tordict:
+            pass
+        elif userinfo:
+            pass
+        else:
+            print('Provide either torfilepath, tordict or userinfodict!')
+        
+        # read gridfile
         gridinfodict = gridfile_h5utils.grid2dict_h5(gridfilepath)
+                
+        # combine grid- and torfile/userinfo
+        infodict = gridfile_grdutils.gather_information(griddict, tordict, userinfo)        
+        relevant_keys = [
+            'file_name', 'class_name', 'field_region', 'field_region_distance_m',
+            'coordinate_system', 'coordinate_system_name', 'ycoords', 'xcoords', 
+            'field_name', 'polarisation', 'field_components_mathnames', 'field_components_mathunits', 'field_components_unitsystem',
+            'freqs_Hz', 'data']
+        gridinfodict = {k:v for k,v in {**griddict, **infodict}.items() if k in relevant_keys}
+        
+        # store data as Xarray
         da = dict2xarray(gridinfodict)
         
     else:
