@@ -175,7 +175,7 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
         gridinfodict = gridfile_h5utils.grid2dict_h5(gridfilepath)
                 
         # combine grid- and torfile/userinfo
-        infodict = gridfile_grdutils.gather_information(griddict, tordict, userinfo)        
+        infodict = gridfile_h5utils.gather_information(griddict, tordict, userinfo)        
         relevant_keys = [
             'file_name', 'class_name', 'field_region', 'field_region_distance_m',
             'coordinate_system', 'coordinate_system_name', 'ycoords', 'xcoords', 
