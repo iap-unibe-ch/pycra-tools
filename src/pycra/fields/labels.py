@@ -1,4 +1,5 @@
 polarisation_type_spherical = {
+        -3: ('linear modified', [r'E_{co}', r'E_{cx}', r'E_r']),
         1: ('theta_phi',        [r'E_\theta', r'E_\phi', r'E_r']),
         2: ('circular',         [r'E_{rhc}', r'E_{lhc}', r'E_r']),
         3: ('linear',           [r'E_{co}', r'E_{cx}', r'E_r']),
