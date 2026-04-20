@@ -95,7 +95,7 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
 
     field_region_distance_m = h5grid["object"].attrs["field_distance"]
     field_region = h5grid["object"].attrs["field_region"].decode('utf-8')
-    polarisation = h5grid["object"].attrs["polarisation"].decode('utf-8')
+    polarisation = abs(h5grid["object"].attrs["polarisation"].decode('utf-8'))
     freqs_Hz = h5grid["parameters"]["frequency"][:]
 
     # given all the properties: define labels from user manual
@@ -142,7 +142,7 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
         'freqs_Hz': freqs_Hz} # torfile/user (optional)
     outputinfodict = {
         'coordinate_system': coordinate_system, # icut + class_name --> e.g. spherical_cut: polar, conical -->  {'name': 'polar', 'coords': ('phi', 'theta'), 'units': ('deg', 'deg'), 'tex': ('\\phi', '\\theta')}
-        'polarisation': abs(polarisation), # icomp + class_name --> e.g. spherical_cut: linear, total power, ...
+        'polarisation': polarisation, # icomp + class_name --> e.g. spherical_cut: linear, total power, ...
         'field_region': field_region, # ncomp / torfile --> near_field / far_field
         'field_components_mathnames': field_components_mathnames, # ncomp + class_name + field_name --> e.g. spherical_cut: ['E_{co}', 'E_{cx}', 'E_r']
         'field_components_unitsystem': field_components_unitsystem, # icomp + class_name (polarisation & field_region) --> e.g. spherical
