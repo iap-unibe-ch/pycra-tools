@@ -95,7 +95,7 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
 
     field_region_distance_m = h5grid["object"].attrs["field_distance"]
     field_region = h5grid["object"].attrs["field_region"].decode('utf-8')
-    polarisation = abs(h5grid["object"].attrs["polarisation"].decode('utf-8'))
+    polarisation = h5grid["object"].attrs["polarisation"].decode('utf-8').strip('-')
     freqs_Hz = h5grid["parameters"]["frequency"][:]
 
     # given all the properties: define labels from user manual
