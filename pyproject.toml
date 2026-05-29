@@ -50,4 +50,4 @@ test = ["pytest>=6.0"]
 [project.urls]
 homepage = ""
 documentation = ""
-repository = "https://github.com/iap-unibe-ch/pycra.git"
+repository = "https://github.com/iap-unibe-ch/pycra-tools.git"
