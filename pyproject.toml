@@ -17,7 +17,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pycra"
 description = "Package to read Ticra Tools field and coupling data stored in .cut, .grd and .h5 file formats"
-readme = {file = "README.txt", content-type = "text/markdown"}
+readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.10"
 license = { file = "LICENSE"}
 authors = [
