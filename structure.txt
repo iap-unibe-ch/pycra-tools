@@ -1,0 +1,22 @@
+./pycra
+├── LICENSE
+├── pyproject.toml
+├── README.md
+├── src
+│   └── pycra
+│       ├── coupling
+│       │   └── cutfile.py
+│       ├── fields
+│       │   ├── cutfile.py
+│       │   ├── gridfile_grdutils.py
+│       │   ├── gridfile_h5utils.py
+│       │   ├── gridfile.py
+│       │   └── labels.py
+│       ├── __init__.py
+│       ├── torfile.py
+│       └── _version.py
+├── structure.txt
+└── tests
+    └── test_pycra.py
+
+5 directories, 14 files
