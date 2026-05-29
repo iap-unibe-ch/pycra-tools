@@ -1,3 +1,13 @@
+# General information about pyproject.toml
+# https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
+
+# Information about versioning
+# https://hatch.pypa.io/1.9/version/
+# Major.Minor.Patch (e.g. 3.1.7)
+# Major = fundamental modifications (not necessarily backward-compatible)
+# Minor = backward-compatible new features
+# Patch = backward-compatible bug fixes
+
 # https://peps.python.org/pep-0517/
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
@@ -7,15 +17,20 @@ build-backend = "hatchling.build"
 [project]
 name = "pycra"
 description = "Package to read Ticra Tools field and coupling data stored in .cut, .grd and .h5 file formats"
-readme = "README.md"
+readme = {file = "README.txt", content-type = "text/markdown"}
 requires-python = ">=3.10"
-license = { text = "BSD 3-Clause License" }
+license = { file = "LICENSE"}
 authors = [
-    { email = "roland.albers@unibe.ch", name = "Roland Albers" },
-    { email = "philipp.schmid@unibe.ch", name = "Philipp J. Schmid"},
+    {name = "Roland Albers", email = "roland.albers@unibe.ch"},
+    {name = "Philipp J. Schmid", email = "philipp.schmid@unibe.ch"},
+]
+maintainers = [
+    {name = "Roland Albers", email = "roland.albers@unibe.ch"},
+    {name = "Philipp J. Schmid", email = "philipp.schmid@unibe.ch"},
 ]
 dynamic = ["version"]
 dependencies = ["numpy","xarray","pint","h5py"]
+keywords = ["TICRA", "GRASP", "quasioptics", "simulation", "reflector", "antenna", "processing"]
 
 [tool.hatch.version]
 source = "vcs"
@@ -33,5 +48,6 @@ version-file = "src/pycra/_version.py"
 test = ["pytest>=6.0"]
 
 [project.urls]
-homepage = "https://git.iap.unibe.ch/albers/pycra"
-repository = "https://git.iap.unibe.ch/albers/pycra"
+homepage = ""
+documentation = ""
+repository = "https://github.com/iap-unibe-ch/pycra.git"
