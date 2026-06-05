@@ -5,10 +5,10 @@ Using Python's built-in virtual environments is preferable to separate the depen
 
 ## 1. Create and activate virtual environment
 A comprehensive tutorial about Python virtual environments is e.g. [RealPython -- Python Virtual Environments: A Primer](https://realpython.com/python-virtual-environments-a-primer/). 
-The following instructions just outline the idea. The user is kindly asked to verify with official installation instructions.
+The following instructions just outline the idea. The user is kindly asked to consult professional instructions.
 
 ```{warning}
-The authors disclaim all responsibility. The responsibility lies entirely with the user. Contributions are welcome.
+The authors disclaim all responsibility. The responsibility lies entirely with the user.
 ```
 
 ### Linux

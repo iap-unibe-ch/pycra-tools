@@ -26,8 +26,9 @@ project:
     - file: intro.md
     - file: installation.md
     - file: grasp_field_data.ipynb
-    - file: grasp_coupling_data.md
+    - file: grasp_coupling_data.ipynb
     - file: example_fields.ipynb
+    - file: example_coupling.ipynb
   # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
 site:
   template: book-theme

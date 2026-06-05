@@ -1,11 +1,11 @@
 # GRASP field data
-Date from the TICRA\'s *General Reflector Antenna Software Package* (GRASP) can be stored in the following formats:
+Field data from the TICRA\'s *General Reflector Antenna Software Package* (GRASP) can be stored in the following formats:
 - GRASP field data in cuts: `.cut`
 - GRASP field data in grids: `.grd` / `.h5`
 
 To correctly interpret the numerical data, additional information is needed. 
 This information can be retrieved from the `.tor` file associated with the project, or can be passed via dictionary `{userinfo}` by the user.
-The pycra-tools package combines the information, and returns an [Xarray](https://docs.xarray.dev/en/stable/) labeled multi-dimensional array. 
+The pycra-tools package gathers the information, and returns an [Xarray](https://docs.xarray.dev/en/stable/) labeled multi-dimensional array. 
 Say **da** is the name of the resulting dataframe. It has the following attributes:
 
 - **da.attrs['class_name']**: Fundamentally, there is different *classes* of cuts and grids:\

@@ -5,9 +5,8 @@
 
 The purpose of this package is to process file outputs of from software products of [TICRA](https://www.ticra.com/), 
 such as the *General Reflector Antenna Software Package* (GRASP). The name of the package derives from [TICRA Tools](https://www.ticra.com/software/ticratools/), 
-which is shared interface to multiple of TICRA software products.
+TICRA\'s shared interface to multiple of its software products.
 
-File formats are documented in the TICRA Tools User\'s Manual, see e.g. {cite}`ticra_tools_2024`.
 Pycra-tools currently supports the following data formats:
 - GRASP field data in cuts: `.cut`
 - GRASP field data in grids: `.grd` / `.h5`
@@ -26,7 +25,4 @@ This documentation comprises the following contents:
 
 ```{note}
 We kindly welcome suggestions for improvement, as well as implementations for other files (e.g. GRASP coupling date in grids).
-```
-
-```{bibliography}
 ```
