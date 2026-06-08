@@ -6,6 +6,103 @@ from pathlib import Path
 from . import labels
 from .. import torfile
 
+def extract_frequencies(header_blob, nset, gridfilepath):
+    """Extract frequency information
+    
+    Old implementation:
+    
+    # max_nrfreqs_per_line = 4
+    # freq_indice = [ii for ii,attr in enumerate(header_lines) if re.search(r'(frequencies \[[a-zA-Z]+\]:)',attr.lower())]
+    # if freq_indice:
+    #     freqs_unit = re.search('\[([a-zA-Z]+)\]', header_lines[freq_indice[0]]).groups()[0]
+    #     nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
+    #     freqstr = ' '.join([header_lines[freq_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
+    #     freqs = [float(ff) for ff in freqstr.split()]
+    #     freqs_Hz = np.asarray([(freq * ureg[freqs_unit]).to('Hz').magnitude for freq in freqs])
+    # else:
+    #     wavelength_indice = [ii for ii,attr in enumerate(header_lines) if re.search(r'(wavelengths \[[a-zA-Z]+\]:)',attr.lower())]
+    #     if wavelength_indice:
+    #         speedoflight = 299792458
+    #         wavelengths_unit = re.search(r'\[([a-zA-Z]+)\]', header_lines[wavelength_indice[0]]).groups()[0]
+    #         nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
+    #         freqstr = ' '.join([header_lines[wavelength_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
+    #         wavelengths = [float(ff) for ff in freqstr.split()]
+    #         wavelengths = [(wavelength * ureg[wavelengths_unit]).to('m').magnitude for wavelength in wavelengths]
+    #         freqs_Hz = np.asarray([speedoflight / wavelength for wavelength in wavelengths])
+    #     else:
+    #         freqs_Hz = np.asarray([np.nan]*nset)
+    #         print('\n')
+    #         print('Missing frequency information in grid-file: %s' % gridfilepath)
+    #         print('Given header information: %s' % header_lines)
+    #         print('See related information in "torfile.read_frequencies".')
+    #         print('We already had that issue when selecting <None> instead of indicating the frequency.')
+    #         print('In that case, the frequency information is missing both in the .grd-file and in the .tor-file')
+    #         print('It seems that GRASP implicitely chooses the frequency indication of the sources that converge on the grid.')
+    #         print('--> Read .tci-file to identify sources.')
+    #         print('--> Go back to .tor-file and retrieve the corresponding frequencies.')
+    #         print('\n')
+    
+    The above caused problems in the following case:
+    
+    #   VERSION: TICRA-EM-FIELD-V0.1
+    #   Field data in grid
+    #   SOURCE_FIELD_NAME: rectangular_horn_tx
+    #   FREQUENCY_RANGE_NAME: frequency_range
+    #   FREQUENCIES [GHz]:
+    #       0.3500000000E+01  0.4375000000E+01  0.5250000000E+01  0.6125000000E+01
+    #       0.7000000000E+01POLARIZATION_COOR_SYS_NAME: rectangular_horn_tx_coor_sys
+    #   ++++
+    
+    The new implementation regex-scans the entire header string, instead of performing line-by-line operations
+
+    Args:
+        header_blob (_type_): _description_
+        
+    """
+    
+    ureg = pint.UnitRegistry()
+    
+    keyword_options = ['FREQUENCIES', 'WAVELENGTHS']
+    keyword = None
+    for keyword_option in keyword_options:
+        if keyword:
+            pass
+        else:
+            pattern = rf"{'FREQUENCIES'}\s*\[([a-zA-Z]+)\]:\s*([\d\s\.\+\-eE]*)"
+            match = re.search(pattern, header_blob)
+            if match:
+                keyword = keyword_option
+    
+    # extract numbers and convert numbers to Hz
+    if keyword:
+        unit_text = match.group(1)
+        numbers_text = match.group(2)
+        numbers = [float(n) for n in re.findall(r'[-+]?\d*\.\d+(?:[eE][-+]?\d+)?', numbers_text)]
+        if keyword == 'FREQUENCIES':
+            freqs_Hz = [(freq * ureg[unit_text]).to('Hz').magnitude for freq in numbers]
+        else:
+            speedoflight = 299792458
+            wavelengths = [(wavelength * ureg[unit_text]).to('m').magnitude for wavelength in wavelengths]
+            freqs_Hz = [speedoflight / wavelength for wavelength in wavelengths]
+    else:
+                
+        freqs_Hz = [np.nan]*nset
+        print('\n')
+        print('Missing frequency information in grid-file: %s' % gridfilepath)
+        print('Given header information: %s' % repr(header_blob))
+        print('See related information in "torfile.read_frequencies".')
+        print('We already had that issue when selecting <None> instead of indicating the frequency.')
+        print('In that case, the frequency information is missing both in the .grd-file and in the .tor-file')
+        print('It seems that GRASP implicitely chooses the frequency indication of the sources that converge on the grid.')
+        print('--> Read .tci-file to identify sources.')
+        print('--> Go back to .tor-file and retrieve the corresponding frequencies.')
+        print('\n')
+        
+    freqs_Hz = np.asarray(freqs_Hz)
+    
+    return freqs_Hz
+
+
 def grid2dict_grd(gridfilepath: Path):
     """    
     See GRASP-10.5.0-Manual.pdf p. 1113 for more information:
@@ -16,8 +113,6 @@ def grid2dict_grd(gridfilepath: Path):
     IGRID - Control parameter of field grid type.
 
     """
-    
-    ureg = pint.UnitRegistry()
     
     with open(gridfilepath, 'r') as file_grid:
 
@@ -35,7 +130,7 @@ def grid2dict_grd(gridfilepath: Path):
         #   SOURCE_FIELD_NAME: single_po
         #   FREQUENCY_NAME: single_frequencies
         #   FREQUENCIES [GHz]:
-        #   0.1040000000E+02  0.1100000000E+02  0.1160000000E+02
+        #       0.1040000000E+02  0.1100000000E+02  0.1160000000E+02
         #   ++++
         #
         #   VERSION: TICRA-EM-FIELD-V0.1
@@ -43,7 +138,16 @@ def grid2dict_grd(gridfilepath: Path):
         #   SOURCE_FIELD_NAME: strut_analysis_arbitrary_cross_01
         #   WAVELENGTH_RANGE_NAME: wavelength_range
         #   WAVELENGTHS [m]:
-        #   0.3000000000E-01
+        #       0.3000000000E-01
+        #   ++++
+        #
+        #   VERSION: TICRA-EM-FIELD-V0.1
+        #   Field data in grid
+        #   SOURCE_FIELD_NAME: rectangular_horn_tx
+        #   FREQUENCY_RANGE_NAME: frequency_range
+        #   FREQUENCIES [GHz]:
+        #       0.3500000000E+01  0.4375000000E+01  0.5250000000E+01  0.6125000000E+01
+        #       0.7000000000E+01POLARIZATION_COOR_SYS_NAME: rectangular_horn_tx_coor_sys
         #   ++++
         #
         #   Field data in grid
@@ -55,23 +159,27 @@ def grid2dict_grd(gridfilepath: Path):
         # --------------------------------------------------------
 
         # (1) parse relevant section (header ends with ++++). 
-        header = []
+        header_lines = []
         line = file_grid.readline()
         while line[0:4] != "++++":
-            header.append(line)
+            header_lines.append(line)
             line = file_grid.readline()
+        header_blob = "".join(header_lines) # merge lines to one string
         
         # (2) Store information in different format: 'headerinfo' being a list of tuples. Could look as follows:
         #     [('VERSION', 'TICRA-EM-FIELD-V0.1'), 
         #      ('SOURCE_FIELD_NAME', 'single_feed'), ('FREQUENCY_NAME', 'single_frequencies'), ('FREQUENCIES [GHz]', '0.1160000000E+02  0.1180000000E+02  0.1200000000E+02  0.1220000000E+02'), 
         #      ('SOURCE_FIELD_NAME', 'single_po'), ('FREQUENCY_NAME', 'single_frequencies'), ('FREQUENCIES [GHz]', '  0.1160000000E+02  0.1180000000E+02  0.1200000000E+02  0.1220000000E+02')]
-        # headerinfo = re.findall(r'([^\n]*):\s+?([^\n]*)', ''.join(header))
+        # headerinfo = re.findall(r'([^\n]*):\s+?([^\n]*)', ''.join(header_lines))
         # attrs = [info[0] for info in headerinfo]
         # vals = [info[1] for info in headerinfo]
         # source_indice = [ii for ii,attr in enumerate(attrs) if attr.lower() == 'source_field_name']
         # sources = [vals[ii] for ii in source_indice]
+        # headerinfo = re.findall(r'([A-Z_]{4,}(?:\s*\[.*?\])?):\s*(.*?)(?=(?:\s*[A-Z_]{4,}:)|$|\n)', header_blob)
+        # attrs = [info[0].strip() for info in headerinfo]
+        # vals = [info[1].strip() for info in headerinfo]
         
-        # Following ++++ comes more information about type of file format etc.
+        # (3) Following ++++ comes more information about type of file format etc.
         # KTYPE = 1 - standard format for 2D grid. For files used in GRASP this variable is always 1.
         # NSET - Number of field sets or beams.
         # ICOMP - Control parameter of field components.
@@ -80,44 +188,16 @@ def grid2dict_grd(gridfilepath: Path):
         ktype = int(file_grid.readline().strip())
         nset, icomp, ncomp, igrid = [int(s) for s in file_grid.readline().split()]
         assert ktype == 1
-
-        # (3) extract frequency information if available. Take frequencies from first appearance.
-        # Notice that frequencies can be written over several lines (we discovered that every 5th frequency stands on a new line). Example for 5 frequencies:
-        # ['VERSION: TICRA-EM-FIELD-V0.1\n', 'Field data in grid\n', 'SOURCE_FIELD_NAME: C1_all_feed\n', 'SOURCE_FIELD_NAME: C2_all_feed\n', 
-        #    'SOURCE_FIELD_NAME: C3_all_feed\n', 'SOURCE_FIELD_NAME: C4_all_feed\n', 'FREQUENCY_NAME: C_f_all\n', 
-        #    'FREQUENCIES [GHz]:\n', '  0.6665000000E+01  0.6675000000E+01  0.6875000000E+01  0.7075000000E+01\n', '  0.7087000000E+01\n']
         
-        max_nrfreqs_per_line = 4
-        freq_indice = [ii for ii,attr in enumerate(header) if re.search(r'(frequencies \[[a-zA-Z]+\]:)',attr.lower())]
-        if freq_indice:
-            freqs_unit = re.search('\[([a-zA-Z]+)\]', header[freq_indice[0]]).groups()[0]
-            nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
-            freqstr = ' '.join([header[freq_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
-            freqs = [float(ff) for ff in freqstr.split()]
-            freqs_Hz = [(freq * ureg[freqs_unit]).to('Hz').magnitude for freq in freqs]
-        else:
-            wavelength_indice = [ii for ii,attr in enumerate(header) if re.search(r'(wavelengths \[[a-zA-Z]+\]:)',attr.lower())]
-            if wavelength_indice:
-                speedoflight = 299792458
-                wavelengths_unit = re.search(r'\[([a-zA-Z]+)\]', header[wavelength_indice[0]]).groups()[0]
-                nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
-                freqstr = ' '.join([header[wavelength_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
-                wavelengths = [float(ff) for ff in freqstr.split()]
-                wavelengths = [(wavelength * ureg[wavelengths_unit]).to('m').magnitude for wavelength in wavelengths]
-                freqs_Hz = [speedoflight / wavelength for wavelength in wavelengths]
-            else:
-                freqs_Hz = [np.nan]*nset
-                print('\n')
-                print('Missing frequency information in grid-file: %s' % gridfilepath)
-                print('Given header information: %s' % header)
-                print('See related information in "torfile.read_frequencies".')
-                print('We already had that issue when selecting <None> instead of indicating the frequency.')
-                print('In that case, the frequency information is missing both in the .grd-file and in the .tor-file')
-                print('It seems that GRASP implicitely chooses the frequency indication of the sources that converge on the grid.')
-                print('--> Read .tci-file to identify sources.')
-                print('--> Go back to .tor-file and retrieve the corresponding frequencies.')
-                print('\n')
-
+        # (4) extract frequency information if available. Take frequencies from first appearance.     
+        freqs_Hz = extract_frequencies(header_blob, nset, gridfilepath)
+        
+        # --------------------------------------------------------
+        # Store data into array
+        # row coordinates: [ymax, ..., ymin]
+        # column coordinates: [xmin, ..., xmax]
+        # --------------------------------------------------------
+        
         # loop over lines with zeros... (see e.g. TICRA-TOOLS-23.1.0-Manual, p. 3257)
         beamc = [[float(s) for s in file_grid.readline().split()] for _ in range(nset)]
         
@@ -134,12 +214,7 @@ def grid2dict_grd(gridfilepath: Path):
         xcoords = np.linspace(*xlims, nx)
         ycoords =  np.linspace(*ylims, ny)[::-1] # reverse the order
 
-        # --------------------------------------------------------
-        # Store data into array
-        # row coordinates: [ymax, ..., ymin]
-        # column coordinates: [xmin, ..., xmax]
-        # --------------------------------------------------------
-
+        # preallocate array
         data = np.full(shape=(ny, nx, ncomp, len(freqs_Hz)), fill_value=complex(np.nan, np.nan), dtype=complex)
 
         for frequency_index,_ in enumerate(freqs_Hz):
@@ -276,7 +351,7 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
                 raise
             elif sum(np.isnan(griddict['freqs_Hz'])>0):
                 freqs_Hz = freqs_Hz_auxiliary
-            elif freqs_Hz_auxiliary != griddict['freqs_Hz']:
+            elif np.any(freqs_Hz_auxiliary != griddict['freqs_Hz']):
                 print('Error with file: %s' % griddict['file_name'])
                 print('Caution! Frequencies in grid- and torfile are inconsistent!')
                 print('gridfile: %s' % griddict['freqs_Hz'])
