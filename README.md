@@ -7,9 +7,7 @@ Package to process Ticra Tools .grd and .cut files based on xarray. You should f
 able to use this package effectively.
 
 ## Installation instructions
-
-0. Create virtual environment 
-### What is the idea?
+### Create virtual environment 
 We do not install the modules or packages directly to your "system install" of Python:<br>
 Modules and packages may conflict with each other and with the version of Python you have installed on your system. 
 If there is a compatibility problem, it can cause instability or bugs when you try to use Python.<br>
@@ -20,22 +18,32 @@ This ensures that compatibility problems won't affect the primary Python install
 and that it doesn't become a bloated mess of extra packages and modules.<br>
 For instance, create an extra directory (say "venv"), inside of which we create the desired environment (say "pycraenv").
 
-### Linux
-mkdir /opt/venv <br>
-python3 -m venv /opt/venv/pycraenv<br>
-### Windows (PowerShell)
-New-Item -Path 'C:\Tools\python\venv' -ItemType Directory<br>
+#### Linux
+`
+mkdir /opt/venv 
+python3 -m venv /opt/venv/pycraenv
+`
+#### Windows (PowerShell)
+`
+New-Item -Path 'C:\Tools\python\venv' -ItemType Directory
 python -m venv C:\Tools\python\venv\pycraenv
-
-1. Activate your virtual environment
-### Linux
+`
+### Activate your virtual environment
+#### Linux
+`
 source /opt/venv/pycraenv/bin/activate
-### Windows (PowerShell)
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass<br>
+`
+#### Windows (PowerShell)
+`
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 C:\Tools\python\venv\pycraenv\Scripts\Activate.ps1
+`
 
-2. Make sure pip is up to date: 
+### Install pycra-tools
+Ensuring pip is up to date: 
+
 `pip install --upgrade pip`
 
-3. Install the package:
+Install the package:	
+
 `pip install pycra-tools`
