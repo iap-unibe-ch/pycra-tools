@@ -25,8 +25,8 @@ authors = [
     {name = "Philipp J. Schmid", email = "philipp.schmid@unibe.ch"},
 ]
 maintainers = [
-    {name = "Roland Albers", email = "roland.albers@unibe.ch"},
     {name = "Philipp J. Schmid", email = "philipp.schmid@unibe.ch"},
+    {name = "Roland Albers", email = "roland.albers@unibe.ch"},
 ]
 dynamic = ["version"]
 dependencies = ["numpy","xarray","pint","h5py"]
@@ -34,6 +34,9 @@ keywords = ["TICRA", "GRASP", "quasioptics", "simulation", "reflector", "antenna
 
 [tool.hatch.version]
 source = "vcs"
+
+[tool.hatch.version.raw-options]
+local_scheme = "no-local-version"
 
 [tool.hatch.build.targets.wheel]
 only-include = ["src"]
@@ -48,6 +51,4 @@ version-file = "src/pycra_tools/_version.py"
 test = ["pytest>=6.0"]
 
 [project.urls]
-homepage = ""
-documentation = ""
 repository = "https://github.com/iap-unibe-ch/pycra-tools.git"
