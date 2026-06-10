@@ -61,7 +61,7 @@ def extract_frequencies(header_blob, nset, gridfilepath):
     """
     
     ureg = pint.UnitRegistry()
-    
+        
     keyword_options = ['FREQUENCIES', 'WAVELENGTHS']
     keyword = None
     for keyword_option in keyword_options:
