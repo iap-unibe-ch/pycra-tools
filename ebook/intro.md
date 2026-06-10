@@ -13,10 +13,8 @@ Pycra-tools currently supports the following data formats:
 - GRASP coupling data in cuts: `.cut`
 
 Numerical data and some information is stored in these files, 
-but normally parts of the relevant information is also stored in the project `.tor` (TICRA object repository) file. 
-The auxiliary information can also be provided by the user (say when no tor-file is available) in the form of a dictionary `{userinfo}`.
-The data are combined (`.cut` / `.grd` / `.h5` and `.tor` / `{userinfo}`), 
-and the complete information is then stored using [Xarray](https://docs.xarray.dev/en/stable/) data structures, in the form of a labeled multi-dimensional array.
+but parts of the relevant information is normally also stored in the project\'s TICRA object repository `.tor` file, or must be read from the `.tci` file (or provided by the user). 
+Pycra-tools gathers the data and stores it in [Xarray](https://docs.xarray.dev/en/stable/) data structures, in the form of a labeled multi-dimensional array.
 
 This documentation comprises the following contents:
 

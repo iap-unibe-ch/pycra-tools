@@ -8,28 +8,6 @@ from .. import torfile
 def readcut_coupling(cutfilepath: str, torfilepath: str = '', tordict: dict = {}) -> xr.DataArray:
     """
     
-    Example
-    -------
-    
-    from pycra_tools import torfile
-    from pycra_tools.coupling import cutfile
-    
-    # define directory where the data is stored
-    directory = './coupling_and_plate/Job_01'
-    
-    # define field-data
-    cutfilepath = os.path.join(directory, 'coupling_system_horn2.cut')
-    
-    # define torfile
-    torfilepath = os.path.join(directory, 'Job_01.tor')
-    
-    # ev. read torfile (faster when several files shall be read)
-    tordict = torfile.tor2dict(torfilepath)
-    
-    # Read the field-data. The following two methods give the same result
-    da = cutfile.readcut_coupling(cutfilepath, torfilepath=torfilepath)
-    da = cutfile.readcut_coupling(cutfilepath, tordict=tordict)
-    
     Inputs
     ------
     
@@ -75,6 +53,15 @@ def readcut_coupling(cutfilepath: str, torfilepath: str = '', tordict: dict = {}
     - The receiving sources may, as an entity, be translated and rotated relatively to the 
     fixed transmitters and the coupling is calculated as function of these movements.
     - It shall be noted that the transmitters are fixed while the receivers move.
+    
+    Remark: only files with #movement_definition<=2 can be read without tor-file (or user indications)!
+    - For #movement_definitions<=2, the files can also be read without tor-file 
+      (see header information of each cut indicated by "coupling"):
+      V_INI, V_INC, V_NUM : "fast" coordinate (last defined)
+      C : second-to-fastest coordinate (second-to-last defined)
+      Remark: the nr. of frequencies can be inferred, but the frequency values are missing.
+    - For #movement_definitions>2:
+      file cannot be read withoug tor-file, because the number of steps of the slowest coordinates are not given.
         
     Every cut is organized as follows:
     ----------------------------------
@@ -89,70 +76,12 @@ def readcut_coupling(cutfilepath: str, torfilepath: str = '', tordict: dict = {}
         ...
         
     The cut-header contains the following information:
-    vN_1    vN_last(if vN_nrsteps = 1 --> vN_last = vN_1+1)     vN_nrsteps      vNminus1_value(0 if noi such movement)    3     2   1  
+    vN_1    vN_last(if vN_nrsteps = 1 --> vN_last = vN_1+1)     vN_nrsteps      vNminus1_value(0 if no such movement)    3     2   1  
     0.1000000000E+01  0.1000000000E+01  101  0.0000000000E+00    3    1    2
-    
-    Cuts are stored one after the other:
-    ------------------------------------
-    
-    Zero movement definitions
-    --> nr. cuts = 1
-    -------------------------------------------------
-    | freq vs. coupling quotients                   |
-    -------------------------------------------------
-    
-    One movement definition (e.g. translation or rotation)
-    --> nr. cuts = len(freqs)
-    # V_INI, V_INC, V_NUM : refer to the movement v1
-    # C : zero because there is no N-1-th movement
-    -------------------------------------------------
-    | freq1 (v1 vs. coupling quotients)             |
-    | freq2 (v1 vs. coupling quotients)             |
-    | ...                                           |
-    -------------------------------------------------
-    
-    Two movement definitions (e.g. translation and rotation)
-    --> nr. cuts = len(freq)*len(v1)
-    # V_INI, V_INC, V_NUM : refer to the movement v2 ("fast" coordinate)
-    # C : refers to v1 ("slow" coordinate)
-    # Analogy to field data in cuts:
-    # freq -> freq
-    # fix (e.g. phi) -> slow
-    # varying (e.g. theta) -> fast
-    -------------------------------------------------
-    | freq1 - v11 (v2 vs. coupling quotients)       |
-    |       - v12 (v2 vs. coupling quotients)       |
-    |       - ...                                   |
-    | freq2 - v11 (v2 vs. coupling quotients)       |
-    |       - v12 (v2 vs. coupling quotients)       |
-    |       - ...                                   |
-    | ...                                           |
-    -------------------------------------------------
-    
-    Three movement definitions
-    --> nr. cuts = len(freq)*len(v1)*len(v2)
-    # V_INI, V_INC, V_NUM : refer to the movement v3 ("fastest" coordinate)
-    # C : refers to v2 ("second fastest" coordinate)
-    -------------------------------------------------
-    | freq1 - v11 - v21 (v3 vs. coupling quotients) |
-    |             - v22 (v3 vs. coupling quotients) |
-    |             - ...                             |
-    |       - v12 - v21 (v3 vs. coupling quotients) |
-    |             - v22 (v3 vs. coupling quotients) |
-    |             - ...                             |
-    |       - ...                                   |
-    | freq2 - v11 - v21 (v3 vs. coupling quotients) |
-    |             - v22 (v3 vs. coupling quotients) |
-    |             - ...                             |
-    |       - v12 - v21 (v3 vs. coupling quotients) |
-    |             - v22 (v3 vs. coupling quotients) |
-    |             - ...                             |
-    |       - ...                                   |
-    | ...                                           |
-    -------------------------------------------------
 
     """
-
+    
+    # For simplicity: require tor-file.
     if torfilepath:
         tordict = torfile.tor2dict(torfilepath)
     elif tordict:
@@ -160,15 +89,12 @@ def readcut_coupling(cutfilepath: str, torfilepath: str = '', tordict: dict = {}
     else:
         print('Provide either torfilepath or tordict!')
     
-    # we first want to read the torfile: to read the cut-file, we must know
-    # - number of frequencies
-    # - number of non-trivial movement definitions (and the corresponding numbers of steps)
-    infodict = gather_information(cutfilepath, tordict)
+    infodict = extract_torfile_information(tordict, cutfilepath)
     
     # Notice: Trivial movement definitions with number=0 (zero steps) can be defined.
     # They are referenced in the tor-file, but ignored in the cut-file, so we drop them.
     infodict['movdicts'] = [movdict for movdict in infodict['movdicts'] if movdict['number']>0]
-    
+
     # read cutfile to dictionary
     file_format = infodict['file_format']
     nrfreqs = len(infodict['freqs_Hz'])
@@ -190,80 +116,76 @@ def readcut_coupling(cutfilepath: str, torfilepath: str = '', tordict: dict = {}
 
     return da
 
-def gather_information(cutfilepath: dict, tordict: dict = {}) -> dict:
-    """
-    Collect data from cut- and tor-file, and create an easy accessible database.
-    """
-
-    if tordict:
-        
-        cutname = Path(cutfilepath).stem
-        torinfo = tordict[cutname]
-        
-        # get class_name ('coupling_system' / vs. 'spherical_cut', ...)
-        class_name = torinfo['class_name']
-        
-        # check that the identified class_name is indeed coupling_system (to avoid wheird errors)
-        if class_name != 'coupling_system':
-            print('No such class_name: %s' % class_name)
-            print('Class name must be "coupling_system"')
-            raise
-
-        comment = torinfo['comment'] if 'comment' in torinfo.keys() else None
-        receiver_sources = re.findall(r'ref\((.*?)\)', torinfo['receiver_sources'])
-        amplitude_only = torinfo['amplitude_only'] if 'amplitude_only' in torinfo.keys() else 'off'
-        cqlist = torinfo['list'] if 'list' in torinfo.keys() else 'off'
-        file_name = torinfo['file_name'] if 'file_name' in torinfo.keys() else None
-        file_format = torinfo['file_format'] if 'file_format' in torinfo.keys() else 'cuts'
-        movement_definition = re.search(r'ref\((.+)\)', torinfo['movement_definition']).groups()[0] if 'movement_definition' in torinfo.keys() else None
-                
-        # read frequencies
-        freqs_Hz = torfile.read_frequencies(tordict, objname=cutname)
-        
-        # read movement_definition --> nrsteps_per_movement
-        if not movement_definition:
-            movdicts = []
-        else:
+def extract_torfile_information(tordict: dict, cutfilepath: str) -> dict:
             
-            # Example with one movement:
-            # sequence    (    struct(movement: translation_along, axis: z_original, start: 0.0, 
-            #           end:"ref(distance_antenna2reflector)/2", number: 0, length_unit: mm)    )            
-            
-            # resolve references like ref(distance_antenna2reflector)
-            movspecstring = tordict[movement_definition]['movements']
-            references = re.findall(r'ref\(([^\)]+)\)',movspecstring)
-            for reference in references:
-                valstr = torfile.get_real_variable(tordict,reference)
-                movspecstring = movspecstring.replace('ref(%s)'%reference, valstr)
-            
-            # no there are no brackets left except for following: sequence( struct(...), struct(...), ... )
-            movspecs = re.findall(r'(struct\([^\)]+\))', movspecstring)
-            movdicts = [
-                {'movement': re.search(r'movement:\s?([^,]+)', movspec).groups()[0], 
-                'axis': re.search(r'axis:\s?([^,]+)', movspec).groups()[0],
-                'start': eval(re.search(r'start:\s?"?([^,"]+)', movspec).groups()[0]),
-                'end': eval(re.search(r'end:\s?"?([^,"]+)', movspec).groups()[0]),
-                'number': int(eval(re.search(r'number:\s?"?([^,"]+)', movspec).groups()[0])),
-                'length_unit': re.search(r'length_unit:\s?([^\)]+)', movspec).groups()[0]}
-                for movspec in movspecs]
-                                    
-        infodict = {
-            'file_name': file_name,
-            'class_name': 'coupling_system',
-            'file_format': file_format,
-            'receiver_sources': receiver_sources,
-            'amplitude_only': amplitude_only,
-            'movement_definition': movement_definition,
-            'cqlist': cqlist,
-            'comment': comment,
-            'freqs_Hz': freqs_Hz,
-            'movdicts': movdicts
-        }           
-        
-    else:
-
-        print('Please provide either torfile of user information.')
+    cutname = Path(cutfilepath).stem
+    torinfo = tordict[cutname]
+    
+    # get class_name ('coupling_system' / vs. 'spherical_cut', ...)
+    class_name = torinfo['class_name']
+    
+    # check that the identified class_name is indeed coupling_system (to avoid wheird errors)
+    if class_name != 'coupling_system':
+        print('No such class_name: %s' % class_name)
+        print('Class name must be "coupling_system"')
         raise
+
+    comment = torinfo['comment'] if 'comment' in torinfo.keys() else None
+    receiver_sources = re.findall(r'ref\((.*?)\)', torinfo['receiver_sources'])
+    amplitude_only = torinfo['amplitude_only'] if 'amplitude_only' in torinfo.keys() else 'off'
+    cqlist = torinfo['list'] if 'list' in torinfo.keys() else 'off'
+    file_name = torinfo['file_name'] if 'file_name' in torinfo.keys() else None
+    file_format = torinfo['file_format'] if 'file_format' in torinfo.keys() else 'cuts'
+    movement_definition = re.search(r'ref\((.+)\)', torinfo['movement_definition']).groups()[0] if 'movement_definition' in torinfo.keys() else None
+            
+    # read frequencies
+    freqs_Hz = torfile.read_frequencies(tordict, objname=cutname)
+    
+    # read movement_definition --> nrsteps_per_movement
+    if not movement_definition:
+        movdicts = []
+    else:
+        
+        # Example with one movement:
+        # sequence    (    struct(movement: translation_along, axis: z_original, start: 0.0, 
+        #           end:"ref(distance_antenna2reflector)/2", number: 0, length_unit: mm)    )            
+        
+        # resolve references like ref(distance_antenna2reflector)
+        movspecstring = tordict[movement_definition]['movements']
+        references = re.findall(r'ref\(([^\)]+)\)',movspecstring)
+        for reference in references:
+            valstr = torfile.get_real_variable(tordict,reference)
+            movspecstring = movspecstring.replace('ref(%s)'%reference, valstr)
+        
+        # no there are no brackets left except for following: sequence( struct(...), struct(...), ... )
+        movspecs = re.findall(r'(struct\([^\)]+\))', movspecstring)
+        movdicts = [
+            {'movement': re.search(r'movement:\s?([^,]+)', movspec).groups()[0], 
+            'axis': re.search(r'axis:\s?([^,]+)', movspec).groups()[0],
+            'start': eval(re.search(r'start:\s?"?([^,"]+)', movspec).groups()[0]),
+            'end': eval(re.search(r'end:\s?"?([^,"]+)', movspec).groups()[0]),
+            'number': int(eval(re.search(r'number:\s?"?([^,"]+)', movspec).groups()[0])),
+            'units': re.search(r'length_unit:\s?([^\)]+)', movspec).groups()[0]}
+            for movspec in movspecs]
+        
+        # replace meters with degrees (GRASP bug)
+        for ii,movdict in enumerate(movdicts):
+            if movdict['movement'].startswith('rotation'):
+                movdict['units'] = 'deg'
+                movdicts[ii] = movdict
+                                
+    infodict = {
+        'file_name': file_name,
+        'class_name': 'coupling_system',
+        'file_format': file_format,
+        'receiver_sources': receiver_sources,
+        'amplitude_only': amplitude_only,
+        'movement_definition': movement_definition,
+        'cqlist': cqlist,
+        'comment': comment,
+        'freqs_Hz': freqs_Hz,
+        'movdicts': movdicts
+    }           
     
     return infodict
 
@@ -670,7 +592,7 @@ def dict2xarray(cutdict: dict) -> xr.DataArray:
         coords_movements[ii] = (f'm{ii+1}', vals, 
                                 {'long_name': "%s (%s)" % (movdict['movement'],movdict['axis']), 
                                  'name': "%s (%s)" % (movdict['movement'],movdict['axis']), 
-                                 'units': movdict['length_unit']})
+                                 'units': movdict['units']})
 
     da = xr.DataArray(
         # name = str(Path(cutdict['file_name']).stem),
