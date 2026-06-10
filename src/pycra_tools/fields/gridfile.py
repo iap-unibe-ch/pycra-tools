@@ -36,15 +36,15 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
     # If torfile is not available: manually define frequencies
     speedoflight = 299792458
     wavelengths = [0.03] # say we choose only one frequency
-    freqs = [speedoflight/wavelength for wavelength in wavelengths] # yields: [9993081933.333334]
+    freqs = np.asarray([speedoflight/wavelength for wavelength in wavelengths]) # yields: [9993081933.333334]
     
     # If torfile is not available: create dictionary with relevant information
     userinfo = {
         'class_name': 'spherical_grid',                 # (required)
-        'field_name': 'h_field',                        # (required)
+        'field_type': 'h_field',                        # (required)
         'coordinate_system_name': 'single_cut_coor',    # (optional)
         'field_region_distance_m': 1,                   # (optional)
-        'freqs_Hz': [9993081933.333334]                 # (optional)
+        'freqs_Hz': np.asarray([9993081933.333334])     # (optional)
     }
     
     # Read the field-data. The following three methods give the same result
@@ -62,14 +62,14 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
     --> tordict = torfile.tor2dict(torfilepath)
     --> userinfo = {
             'class_name': 'spherical_grid',                 # (required)
-            'field_name': 'h_field',                        # (required)
+            'field_type': 'h_field',                        # (required)
             'coordinate_system_name': 'single_cut_coor',    # (optional)
             'field_region_distance_m': 1,                   # (optional)
-            'freqs_Hz': [9993081933.333334]                 # (optional)
+            'freqs_Hz': np.asarray([9993081933.333334])     # (optional)
         }
         
     Implemented options for required userinfo-input. 
-    class_name: [field_name options]
+    class_name: [field_type options]
     --> 'spherical_grid': ['e_field', 'h_field'],
     --> 'planar_grid': ['e_field', 'h_field'],
     --> 'cylindrical_grid': ['e_field', 'h_field'],
@@ -152,7 +152,7 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
         relevant_keys = [
             'file_name', 'class_name', 'field_region', 'field_region_distance_m',
             'coordinate_system', 'coordinate_system_name', 'ycoords', 'xcoords', 
-            'field_name', 'polarisation', 'field_components_mathnames', 'field_components_mathunits', 'field_components_unitsystem',
+            'field_type', 'polarisation', 'field_components_mathnames', 'field_components_mathunits', 'field_components_unitsystem',
             'freqs_Hz', 'data']
         gridinfodict = {k:v for k,v in {**griddict, **infodict}.items() if k in relevant_keys}
         
@@ -179,7 +179,7 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
         relevant_keys = [
             'file_name', 'class_name', 'field_region', 'field_region_distance_m',
             'coordinate_system', 'coordinate_system_name', 'ycoords', 'xcoords', 
-            'field_name', 'polarisation', 'field_components_mathnames', 'field_components_mathunits', 'field_components_unitsystem',
+            'field_type', 'polarisation', 'field_components_mathnames', 'field_components_mathunits', 'field_components_unitsystem',
             'freqs_Hz', 'data']
         gridinfodict = {k:v for k,v in {**griddict, **infodict}.items() if k in relevant_keys}
         
@@ -222,7 +222,7 @@ def dict2xarray(gridinfodict: dict) -> xr.DataArray:
     coords_X = ('X', xvals, {'long_name': xlabel, 'texname': xlabel_tex, 'units': xunits})
     coords_comp = ('comp', compindice, {
         'long_name': 'field comopnents', 
-        'field_type': gridinfodict['field_name'],
+        'field_type': gridinfodict['field_type'],
         'polarisation': gridinfodict['polarisation'],
         'names_math': gridinfodict['field_components_mathnames'],
         'units_math': gridinfodict['field_components_mathunits'], 
@@ -230,15 +230,15 @@ def dict2xarray(gridinfodict: dict) -> xr.DataArray:
     coords_freq = ('freq', gridinfodict['freqs_Hz'], {'long_name': 'frequency', 'units': 'Hz'})
 
     da = xr.DataArray(
-        # name = str(Path(gridinfodict['file_name']).stem,
+        # name = Path(gridinfodict['file_name']).stem
+        name = gridinfodict['file_name'],
         data = gridinfodict['data'],
         coords = [coords_Y, coords_X, coords_comp, coords_freq],
         attrs = {
-            'filename': gridinfodict['file_name'],
             'class_name': gridinfodict['class_name'],
             'coordinate_system': gridinfodict['coordinate_system']['name'],
             'coordinate_system_name': gridinfodict['coordinate_system_name'],
-            'field_region': gridinfodict['field_region'],
+            #'field_region': gridinfodict['field_region'],
             'field_region_distance_m': gridinfodict['field_region_distance_m']})
 
     return da

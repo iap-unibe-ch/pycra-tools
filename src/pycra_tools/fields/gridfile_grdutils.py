@@ -314,9 +314,9 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
         
         # field ('e_field', 'h_field', 'reflected_e_field', 'currents', ...)
         if class_name == 'surface_grid':
-            field_name = tordict[gridname]['field_type'] if 'field_type' in tordict[gridname].keys() else 'indicent_e_field'
+            field_type = tordict[gridname]['field_type'] if 'field_type' in tordict[gridname].keys() else 'indicent_e_field'
         else:
-            field_name = tordict[gridname]['e_h'] if 'e_h' in tordict[gridname].keys() else 'e_field'
+            field_type = tordict[gridname]['e_h'] if 'e_h' in tordict[gridname].keys() else 'e_field'
         
         # coordinate system ('single_cut_coor', ...)
         coordinate_system_name = torfile.get_coordinate_system_name(torinfo)
@@ -368,7 +368,7 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
                 
         # TICRA TOOLS 23.1.0 p. 2109...
         class_name_options = labels.grid_type.keys() # ['spherical_grid', 'planar_grid', 'cylindrical_grid', 'surface_grid']
-        field_name_options = {
+        field_type_options = {
             'spherical_grid': ['e_field', 'h_field'],
             'planar_grid': ['e_field', 'h_field'],
             'cylindrical_grid': ['e_field', 'h_field'],
@@ -385,15 +385,15 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
                 print('class_name "%s" not in options: %s' % (class_name, class_name_options))
                 raise
         
-        # check user-defined field_name (e.g. 'reflected_h_field', ...)
-        if 'field_name' not in userinfo.keys():
-            print('Please provide "field_name":')
-            print('Options for %s: %s' % (field_name, field_name_options[class_name]))
+        # check user-defined field_type (e.g. 'reflected_h_field', ...)
+        if 'field_type' not in userinfo.keys():
+            print('Please provide "field_type":')
+            print('Options for %s: %s' % (field_type, field_type_options[class_name]))
             raise
         else: 
-            field_name = userinfo['field_name']
-            if field_name not in field_name_options[class_name]:
-                print('field_name "%s" not in options: %s' % (field_name, field_name_options[class_name]))
+            field_type = userinfo['field_type']
+            if field_type not in field_type_options[class_name]:
+                print('field_type "%s" not in options: %s' % (field_type, field_type_options[class_name]))
                 raise
            
         # optional: coordinate system name
@@ -427,7 +427,7 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
                 raise
             elif sum(np.isnan(griddict['freqs_Hz'])>0):
                 freqs_Hz = freqs_Hz_auxiliary
-            elif freqs_Hz_auxiliary != griddict['freqs_Hz']:
+            elif any(freqs_Hz_auxiliary != griddict['freqs_Hz']):
                 print('Error with file: %s' % griddict['file_name'])
                 print('Caution! Frequencies in gridfile and userinput are inconsistent!')
                 print('gridfile: %s' % griddict['freqs_Hz'])
@@ -447,20 +447,20 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
     # surface_grid: e.g. E_{i,\,co} --> H_{r,\,co}
     # all other grids: e.g. E_{co} --> H_{co}
     if class_name == 'surface_grid': 
-        if field_name == 'incident_h_field':
+        if field_type == 'incident_h_field':
             field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
-        elif field_name == 'reflected_e_field':
+        elif field_type == 'reflected_e_field':
             field_components_mathnames = [el.replace(r'E_{i',r'E_{r') for el in field_components_mathnames]
-        elif field_name == 'reflected_h_field':
+        elif field_type == 'reflected_h_field':
             field_components_mathnames = [el.replace(r'E_{i',r'E_{r') for el in field_components_mathnames]
             field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
-        elif field_name == 'currents':
+        elif field_type == 'currents':
             field_components_mathnames = [el.replace(r'E_{i,\,', r'J_{') for el in field_components_mathnames]
-        else: # field_name == 'incident_e_field'
+        else: # field_type == 'incident_e_field'
             pass
-    elif field_name == 'h_field': 
+    elif field_type == 'h_field': 
             field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
-    else: # field_name == 'e_field'
+    else: # field_type == 'e_field'
         pass
     
     # determine units of the field components
@@ -469,7 +469,7 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
     # gather all the information
     inputinfodict = {
         'class_name': class_name, # torfile/user (required): e.g. spherical_cut (surface_cut)
-        'field_name': field_name, # torfile/user (required): e.g. e_field (incident_e_field)
+        'field_type': field_type, # torfile/user (required): e.g. e_field (incident_e_field)
         'coordinate_system_name': coordinate_system_name, # torfile/user (optional)
         'field_region_distance_m': field_region_distance_m, # torfile/user (optional)
         'freqs_Hz': freqs_Hz} # torfile/user (optional)
@@ -477,7 +477,7 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
         'coordinate_system': coordinate_system, # icut + class_name --> e.g. spherical_cut: polar, conical -->  {'name': 'polar', 'coords': ('phi', 'theta'), 'units': ('deg', 'deg'), 'tex': ('\\phi', '\\theta')}
         'polarisation': polarisation, # icomp + class_name --> e.g. spherical_cut: linear, total power, ...
         'field_region': field_region, # ncomp / torfile --> near_field / far_field
-        'field_components_mathnames': field_components_mathnames, # ncomp + class_name + field_name --> e.g. spherical_cut: ['E_{co}', 'E_{cx}', 'E_r']
+        'field_components_mathnames': field_components_mathnames, # ncomp + class_name + field_type --> e.g. spherical_cut: ['E_{co}', 'E_{cx}', 'E_r']
         'field_components_unitsystem': field_components_unitsystem, # icomp + class_name (polarisation & field_region) --> e.g. spherical
         'field_components_mathunits': field_components_mathunits} # icomp + class_name (polarisation & field_region)
     infodict = {**inputinfodict,**outputinfodict}

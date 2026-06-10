@@ -36,7 +36,7 @@ def readcut(cutfilepath: str, torfilepath: str = '', tordict: dict = {},
     # If torfile is not available: create dictionary with relevant information
     userinfo = {
         'class_name': 'spherical_cut',                  # (required)
-        'field_name': 'h_field',                        # (required)
+        'field_type': 'h_field',                        # (required)
         'coordinate_system_name': 'single_cut_coor',    # (optional)
         'field_region_distance_m': 1,                   # (optional)
         'freqs_Hz': [9993081933.333334]                 # (optional)
@@ -57,14 +57,14 @@ def readcut(cutfilepath: str, torfilepath: str = '', tordict: dict = {},
     --> tordict = torfile.tor2dict(torfilepath)
     --> userinfo = {
             'class_name': 'spherical_cut',                  # (required)
-            'field_name': 'h_field',                        # (required)
+            'field_type': 'h_field',                        # (required)
             'coordinate_system_name': 'single_cut_coor',    # (optional)
             'field_region_distance_m': 1,                   # (optional)
             'freqs_Hz': [9993081933.333334]                 # (optional)
         }
         
     Implemented options for required userinfo-input. 
-    class_name: [field_name options]
+    class_name: [field_type options]
     --> 'spherical_cut': ['e_field', 'h_field'],
     --> 'planar_cut': ['e_field', 'h_field'],
     --> 'cylindrical_cut': ['e_field', 'h_field'],
@@ -127,7 +127,7 @@ def readcut(cutfilepath: str, torfilepath: str = '', tordict: dict = {},
     
     Torfile/user
     - class_name : spherical_cut, surface_cut, ...
-    - field_name : 'e_field', 'h_field', 'incident_e_field', 'incident_h_field', 'reflected_e_field', 'reflected_h_field', 'currents'
+    - field_type : 'e_field', 'h_field', 'incident_e_field', 'incident_h_field', 'reflected_e_field', 'reflected_h_field', 'currents'
     
     Retrieved information
     - coor_sys : polar, conical, axial, radial, ... (different choices for different classes)
@@ -184,7 +184,7 @@ def readcut(cutfilepath: str, torfilepath: str = '', tordict: dict = {},
     relevant_keys = [
         'file_name', 'class_name', 'field_region', 'field_region_distance_m',
         'coordinate_system', 'coordinate_system_name', 'fix_coordinates', 'varying_coordinates', 
-        'field_name', 'polarisation', 'field_components_mathnames', 'field_components_mathunits', 'field_components_unitsystem',
+        'field_type', 'polarisation', 'field_components_mathnames', 'field_components_mathunits', 'field_components_unitsystem',
         'freqs_Hz', 'data']
     cutinfodict = {k:v for k,v in {**cutdict, **infodict}.items() if k in relevant_keys}
 
@@ -272,9 +272,9 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
         
         # field ('e_field', 'h_field', 'reflected_e_field', 'currents', ...)
         if class_name == 'surface_cut':
-            field_name = tordict[cutname]['field_type'] if 'field_type' in tordict[cutname].keys() else 'indicent_e_field'
+            field_type = tordict[cutname]['field_type'] if 'field_type' in tordict[cutname].keys() else 'indicent_e_field'
         else:
-            field_name = tordict[cutname]['e_h'] if 'e_h' in tordict[cutname].keys() else 'e_field'
+            field_type = tordict[cutname]['e_h'] if 'e_h' in tordict[cutname].keys() else 'e_field'
 
         # coordinate system ('single_cut_coor', ...)
         coordinate_system_name = torfile.get_coordinate_system_name(tordict[cutname]) # e.g. single_cut_coor
@@ -315,7 +315,7 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
         
         # TICRA TOOLS 23.1.0 p. 2079...
         class_name_options = labels.cut_type.keys() # ['spherical_cut', 'planar_cut', 'cylindrical_cut', 'surface_cut']
-        field_name_options = {
+        field_type_options = {
             'spherical_cut': ['e_field', 'h_field'],
             'planar_cut': ['e_field', 'h_field'],
             'cylindrical_cut': ['e_field', 'h_field'],
@@ -332,15 +332,15 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
                 print('class_name "%s" not in options: %s' % (class_name, class_name_options))
                 raise
             
-        # check user-defined field_name (e.g. 'reflected_h_field', ...)
-        if 'field_name' not in userinfo.keys():
-            print('Please provide "field_name":')
-            print('Options for %s: %s' % (field_name, field_name_options[class_name]))
+        # check user-defined field_type (e.g. 'reflected_h_field', ...)
+        if 'field_type' not in userinfo.keys():
+            print('Please provide "field_type":')
+            print('Options for %s: %s' % (field_type, field_type_options[class_name]))
             raise
         else: 
-            field_name = userinfo['field_name']
-            if field_name not in field_name_options[class_name]:
-                print('field_name "%s" not in options: %s' % (field_name, field_name_options[class_name]))
+            field_type = userinfo['field_type']
+            if field_type not in field_type_options[class_name]:
+                print('field_type "%s" not in options: %s' % (field_type, field_type_options[class_name]))
                 raise
         
         # coordinate system name
@@ -383,20 +383,20 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
     # surface_cut: e.g. E_{i,\,co} --> H_{r,\,co}
     # all other cuts: e.g. E_{co} --> H_{co}
     if class_name == 'surface_cut': 
-        if field_name == 'incident_h_field':
+        if field_type == 'incident_h_field':
             field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
-        elif field_name == 'reflected_e_field':
+        elif field_type == 'reflected_e_field':
             field_components_mathnames = [el.replace(r'E_{i',r'E_{r') for el in field_components_mathnames]
-        elif field_name == 'reflected_h_field':
+        elif field_type == 'reflected_h_field':
             field_components_mathnames = [el.replace(r'E_{i',r'E_{r') for el in field_components_mathnames]
             field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
-        elif field_name == 'currents':
+        elif field_type == 'currents':
             field_components_mathnames = [el.replace(r'E', r'I') for el in field_components_mathnames]
-        else: # field_name == 'incident_e_field'
+        else: # field_type == 'incident_e_field'
             pass
-    elif field_name == 'h_field': 
+    elif field_type == 'h_field': 
             field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
-    else: # field_name == 'e_field'
+    else: # field_type == 'e_field'
         pass
     
     # determine units of the field components
@@ -405,7 +405,7 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
     # gather all the information
     inputinfodict = {
         'class_name': class_name, # torfile/user (required): e.g. spherical_cut (surface_cut)
-        'field_name': field_name, # torfile/user (required): e.g. e_field (incident_e_field)
+        'field_type': field_type, # torfile/user (required): e.g. e_field (incident_e_field)
         'coordinate_system_name': coordinate_system_name, # torfile/user: e.g. single_cut_coor (optional)
         'field_region_distance_m': field_region_distance_m, # torfile/user: e.g. 6 (optional)
         'freqs_Hz': freqs_Hz} # torfile/user (optional)
@@ -413,7 +413,7 @@ def gather_information(cutdict: dict, tordict: dict = {}, userinfo: dict = {}) -
         'coordinate_system': coordinate_system, # icut + class_name --> e.g. spherical_cut: polar, conical -->  {'name': 'polar', 'coords': ('phi', 'theta'), 'units': ('deg', 'deg'), 'tex': ('\\phi', '\\theta')}
         'polarisation': polarisation, # icomp + class_name --> e.g. spherical_cut: linear, total power, ...
         'field_region': field_region, # ncomp / torfile --> near_field / far_field
-        'field_components_mathnames': field_components_mathnames, # ncomp + class_name + field_name --> e.g. spherical_cut: ['E_{co}', 'E_{cx}', 'E_r']
+        'field_components_mathnames': field_components_mathnames, # ncomp + class_name + field_type --> e.g. spherical_cut: ['E_{co}', 'E_{cx}', 'E_r']
         'field_components_unitsystem': field_components_unitsystem, # icomp + class_name (polarisation & field_region) --> e.g. spherical
         'field_components_mathunits': field_components_mathunits} # icomp + class_name (polarisation & field_region)
     infodict = {**inputinfodict,**outputinfodict}
@@ -450,7 +450,7 @@ def dict2xarray(cutinfodict: dict) -> xr.DataArray:
     coords_X = ('X', xvals, {'long_name': xlabel, 'texname': xlabel_tex, 'units': xunits})
     coords_comp = ('comp', compindice, {
         'long_name': 'field comopnents',
-        'field_type': cutinfodict['field_name'],
+        'field_type': cutinfodict['field_type'],
         'polarisation': cutinfodict['polarisation'],
         'names_math': cutinfodict['field_components_mathnames'],
         'units_math': cutinfodict['field_components_mathunits'], 
@@ -464,15 +464,15 @@ def dict2xarray(cutinfodict: dict) -> xr.DataArray:
     #     'name_math': xlabel_tex, 'units_math': xunits_tex})
 
     da = xr.DataArray(
-        # name = str(Path(cutinfodict['file_name']).stem,
+        # name = str(Path(cutinfodict['file_name']).stem),
+        name = cutinfodict['file_name'],
         data = cutinfodict['data'],
         coords = [coords_Y, coords_X, coords_comp, coords_freq],
         attrs = {
-            'filename': cutinfodict['file_name'],
             'class_name': cutinfodict['class_name'],
             'coordinate_system': cutinfodict['coordinate_system']['name'],
             'coordinate_system_name': cutinfodict['coordinate_system_name'],
-            'field_region': cutinfodict['field_region'],
+            # 'field_region': cutinfodict['field_region'],
             'field_region_distance_m': cutinfodict['field_region_distance_m']})
     
     return da

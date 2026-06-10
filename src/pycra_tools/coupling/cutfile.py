@@ -673,14 +673,13 @@ def dict2xarray(cutdict: dict) -> xr.DataArray:
                                  'units': movdict['length_unit']})
 
     da = xr.DataArray(
-        # name = str(Path(cutdict['file_name']).stem,
+        # name = str(Path(cutdict['file_name']).stem),
+        name = cutdict['file_name'],
         data = cutdict['data'],
         coords = [coords_freq] + coords_movements,
-        name = cutdict['file_name'],
         attrs = {
-            'file_name': cutdict['file_name'],
-            'class_name': cutdict['class_name'],
             'file_format': cutdict['file_format'],
+            'class_name': cutdict['class_name'],
             'receiver_sources': cutdict['receiver_sources'],
             'amplitude_only': cutdict['amplitude_only'],
             'movement_definition': cutdict['movement_definition'],
