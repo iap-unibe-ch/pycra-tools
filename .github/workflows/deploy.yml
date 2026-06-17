@@ -6,14 +6,12 @@ on:
   push:
     # Runs on pushes targeting the default branch
     branches: 
-        - main
+        - master
     paths:
         - ebook/**
+  workflow_dispatch:
 env:
-  # `BASE_URL` determines, relative to the root of the domain, the URL that your site is served from.
-  # E.g., if your site lives at `https://mydomain.org/myproject`, set `BASE_URL=/myproject`.
-  # If, instead, your site lives at the root of the domain, at `https://mydomain.org`, set `BASE_URL=''`.
-  BASE_URL: /ebook #/${{ github.event.repository.name }}
+  BASE_URL: /pycra-tools
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -40,17 +38,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18.x
-      
+  
+      - name: Install image conversion tools
+        run: sudo apt-get install -y imagemagick webp
+
       - name: Install Jupyter Book (via myst)
         run: npm install -g jupyter-book
       - name: Build HTML Assets
-        run: jupyter-book build --html --base-url ${{ env.BASE_URL }}
+        run: cd ebook && jupyter-book build --html
 
       # Upload the book's HTML as an artifact
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './_build/html'
+          path: 'ebook/_build/html'
 
       # Deploy the book's HTML to GitHub Pages
       - name: Deploy to GitHub Pages
