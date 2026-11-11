@@ -97,7 +97,6 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
     
     To be added
     ----------- 
-    - h5 processing
     - RCS Grid
     - KLIMIT != 0
     - Frequency Group, Wavelength Range, ...
@@ -187,21 +186,13 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
         
     else:
         
-        # load torfile to dictionary
-        if torfilepath:
-            tordict = torfile.tor2dict(torfilepath)
-        elif tordict:
-            pass
-        elif userinfo:
-            pass
-        else:
-            print('Provide either torfilepath, tordict or userinfodict!')
+        # H5 files natively contain all the information we need, apart from the coordinate system
         
         # read gridfile
         griddict = gridfile_h5utils.grid2dict_h5(gridfilepath)
                 
-        # combine grid- and torfile/userinfo
-        infodict = gridfile_h5utils.gather_information(griddict, tordict, userinfo)        
+        # combine grid- and userinfo
+        infodict = gridfile_h5utils.gather_information(griddict)        
         relevant_keys = [
             'file_name', 'class_name', 'field_region', 'field_region_distance_m',
             'coordinate_system', 'coordinate_system_name', 'ycoords', 'xcoords', 
@@ -211,7 +202,7 @@ def readgrid(gridfilepath: str, torfilepath: str = '', tordict: dict = {},
         
         # store data as Xarray
         da = dict2xarray(gridinfodict)
-    
+
     return da
 
 def dict2xarray(gridinfodict: dict) -> xr.DataArray:

@@ -7,51 +7,51 @@ from . import labels
 from .. import torfile
 
 def extract_frequencies(header_blob, nset, gridfilepath):
-    """Extract frequency information
+    r"""Extract frequency information
     
     Old implementation:
     
-    # max_nrfreqs_per_line = 4
-    # freq_indice = [ii for ii,attr in enumerate(header_lines) if re.search(r'(frequencies \[[a-zA-Z]+\]:)',attr.lower())]
-    # if freq_indice:
-    #     freqs_unit = re.search('\[([a-zA-Z]+)\]', header_lines[freq_indice[0]]).groups()[0]
-    #     nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
-    #     freqstr = ' '.join([header_lines[freq_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
-    #     freqs = [float(ff) for ff in freqstr.split()]
-    #     freqs_Hz = np.asarray([(freq * ureg[freqs_unit]).to('Hz').magnitude for freq in freqs])
-    # else:
-    #     wavelength_indice = [ii for ii,attr in enumerate(header_lines) if re.search(r'(wavelengths \[[a-zA-Z]+\]:)',attr.lower())]
-    #     if wavelength_indice:
-    #         speedoflight = 299792458
-    #         wavelengths_unit = re.search(r'\[([a-zA-Z]+)\]', header_lines[wavelength_indice[0]]).groups()[0]
-    #         nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
-    #         freqstr = ' '.join([header_lines[wavelength_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
-    #         wavelengths = [float(ff) for ff in freqstr.split()]
-    #         wavelengths = [(wavelength * ureg[wavelengths_unit]).to('m').magnitude for wavelength in wavelengths]
-    #         freqs_Hz = np.asarray([speedoflight / wavelength for wavelength in wavelengths])
-    #     else:
-    #         freqs_Hz = np.asarray([np.nan]*nset)
-    #         print('\n')
-    #         print('Missing frequency information in grid-file: %s' % gridfilepath)
-    #         print('Given header information: %s' % header_lines)
-    #         print('See related information in "torfile.read_frequencies".')
-    #         print('We already had that issue when selecting <None> instead of indicating the frequency.')
-    #         print('In that case, the frequency information is missing both in the .grd-file and in the .tor-file')
-    #         print('It seems that GRASP implicitely chooses the frequency indication of the sources that converge on the grid.')
-    #         print('--> Read .tci-file to identify sources.')
-    #         print('--> Go back to .tor-file and retrieve the corresponding frequencies.')
-    #         print('\n')
+    max_nrfreqs_per_line = 4
+    freq_indice = [ii for ii,attr in enumerate(header_lines) if re.search(r'(frequencies \[[a-zA-Z]+\]:)',attr.lower())]
+    if freq_indice:
+        freqs_unit = re.search('\[([a-zA-Z]+)\]', header_lines[freq_indice[0]]).groups()[0]
+        nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
+        freqstr = ' '.join([header_lines[freq_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
+        freqs = [float(ff) for ff in freqstr.split()]
+        freqs_Hz = np.asarray([(freq * ureg[freqs_unit]).to('Hz').magnitude for freq in freqs])
+    else:
+        wavelength_indice = [ii for ii,attr in enumerate(header_lines) if re.search(r'(wavelengths \[[a-zA-Z]+\]:)',attr.lower())]
+        if wavelength_indice:
+            speedoflight = 299792458
+            wavelengths_unit = re.search(r'\[([a-zA-Z]+)\]', header_lines[wavelength_indice[0]]).groups()[0]
+            nrlines2read = nset//max_nrfreqs_per_line + 1 if nset%max_nrfreqs_per_line>0 else nset//max_nrfreqs_per_line
+            freqstr = ' '.join([header_lines[wavelength_indice[0]+1+ii].strip() for ii in range(nrlines2read)])
+            wavelengths = [float(ff) for ff in freqstr.split()]
+            wavelengths = [(wavelength * ureg[wavelengths_unit]).to('m').magnitude for wavelength in wavelengths]
+            freqs_Hz = np.asarray([speedoflight / wavelength for wavelength in wavelengths])
+        else:
+            freqs_Hz = np.asarray([np.nan]*nset)
+            print('\n')
+            print('Missing frequency information in grid-file: %s' % gridfilepath)
+            print('Given header information: %s' % header_lines)
+            print('See related information in "torfile.read_frequencies".')
+            print('We already had that issue when selecting <None> instead of indicating the frequency.')
+            print('In that case, the frequency information is missing both in the .grd-file and in the .tor-file')
+            print('It seems that GRASP implicitely chooses the frequency indication of the sources that converge on the grid.')
+            print('--> Read .tci-file to identify sources.')
+            print('--> Go back to .tor-file and retrieve the corresponding frequencies.')
+            print('\n')
     
     The above caused problems in the following case:
     
-    #   VERSION: TICRA-EM-FIELD-V0.1
-    #   Field data in grid
-    #   SOURCE_FIELD_NAME: rectangular_horn_tx
-    #   FREQUENCY_RANGE_NAME: frequency_range
-    #   FREQUENCIES [GHz]:
-    #       0.3500000000E+01  0.4375000000E+01  0.5250000000E+01  0.6125000000E+01
-    #       0.7000000000E+01POLARIZATION_COOR_SYS_NAME: rectangular_horn_tx_coor_sys
-    #   ++++
+      VERSION: TICRA-EM-FIELD-V0.1
+      Field data in grid
+      SOURCE_FIELD_NAME: rectangular_horn_tx
+      FREQUENCY_RANGE_NAME: frequency_range
+      FREQUENCIES [GHz]:
+          0.3500000000E+01  0.4375000000E+01  0.5250000000E+01  0.6125000000E+01
+          0.7000000000E+01POLARIZATION_COOR_SYS_NAME: rectangular_horn_tx_coor_sys
+      ++++
     
     The new implementation regex-scans the entire header string, instead of performing line-by-line operations
 

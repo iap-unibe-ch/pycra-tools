@@ -72,25 +72,19 @@ def grid2dict_h5(gridfilepath: Path):
             
     return griddict
 
-def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) -> dict:
+def gather_information(griddict: dict) -> dict:
     """
-    Combine data from h5file + torfile/userinfo: dictionary with labels etc.
+    reads data from h5file: dictionary with labels etc.
+    H5 files natively contain more information so a torfile or userinfo is not necessary
     """
-    
-    if tordict:
-        # Do something
-        return
-    elif userinfo:
-        # Do something else
-        return
 
     # Collecting info from h5 file itself
     h5grid = h5py.File(griddict["file_name"])
-    class_name = h5grid["object"].attrs["class"].decode('utf-8')
-    # We want homogenous field names
-    field_name = h5grid["object"].attrs["field_type"].decode('utf-8')
-    field_name = field_name.lower()
-    field_name = field_name.replace(" ", "_")
+    class_name = h5grid["object"].attrs["class"].decode('utf-8').removesuffix("_grid")
+    # We want homogenous field types
+    field_type = h5grid["object"].attrs["field_type"].decode('utf-8')
+    field_type = field_type.lower()
+    field_type = field_type.replace(" ", "_")
 
     field_region_distance_m = h5grid["object"].attrs["field_distance"]
     field_region = h5grid["object"].attrs["field_region"].decode('utf-8')
@@ -107,27 +101,27 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
     # surface_grid: e.g. E_{i,\,co} --> H_{r,\,co}
     # all other grids: e.g. E_{co} --> H_{co}
     if class_name == 'surface_grid': 
-        if field_name == 'incident_h_field':
+        if field_type == 'incident_h_field':
             field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
-        elif field_name == 'reflected_e_field':
+        elif field_type == 'reflected_e_field':
             field_components_mathnames = [el.replace(r'E_{i',r'E_{r') for el in field_components_mathnames]
-        elif field_name == 'reflected_h_field':
+        elif field_type == 'reflected_h_field':
             field_components_mathnames = [el.replace(r'E_{i',r'E_{r') for el in field_components_mathnames]
             field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
-        elif field_name == 'currents':
+        elif field_type == 'currents':
             field_components_mathnames = [el.replace(r'E_{i,\,', r'J_{') for el in field_components_mathnames]
-        else: # field_name == 'incident_e_field'
+        else: # field_type == 'incident_e_field'
             pass
-    elif field_name == 'h_field': 
+    elif field_type == 'h_field': 
             field_components_mathnames = [el.replace(r'E', r'H') for el in field_components_mathnames]
-    else: # field_name == 'e_field'
+    else: # field_type == 'e_field'
         pass
     
     # determine units of the field components
     field_components_unitsystem, field_components_mathunits = labels.units_of_components(polarisation, field_region)
 
     # DEBUG CODE REMOVE LATER
-    coordinate_system_name = "bla"
+    coordinate_system_name = "blank"
 
 
 
@@ -135,7 +129,7 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
     # gather all the information
     inputinfodict = {
         'class_name': class_name, # torfile/user (required): e.g. spherical_cut (surface_cut)
-        'field_name': field_name, # torfile/user (required): e.g. e_field (incident_e_field)
+        'field_type': field_type, # torfile/user (required): e.g. e_field (incident_e_field)
         'coordinate_system_name': coordinate_system_name, # torfile/user (optional)
         'field_region_distance_m': field_region_distance_m, # torfile/user (optional)
         'freqs_Hz': freqs_Hz} # torfile/user (optional)
@@ -143,7 +137,7 @@ def gather_information(griddict: dict, tordict: dict = {}, userinfo: dict = {}) 
         'coordinate_system': coordinate_system, # icut + class_name --> e.g. spherical_cut: polar, conical -->  {'name': 'polar', 'coords': ('phi', 'theta'), 'units': ('deg', 'deg'), 'tex': ('\\phi', '\\theta')}
         'polarisation': polarisation, # icomp + class_name --> e.g. spherical_cut: linear, total power, ...
         'field_region': field_region, # ncomp / torfile --> near_field / far_field
-        'field_components_mathnames': field_components_mathnames, # ncomp + class_name + field_name --> e.g. spherical_cut: ['E_{co}', 'E_{cx}', 'E_r']
+        'field_components_mathnames': field_components_mathnames, # ncomp + class_name + field_type --> e.g. spherical_cut: ['E_{co}', 'E_{cx}', 'E_r']
         'field_components_unitsystem': field_components_unitsystem, # icomp + class_name (polarisation & field_region) --> e.g. spherical
         'field_components_mathunits': field_components_mathunits} # icomp + class_name (polarisation & field_region)
     infodict = {**inputinfodict,**outputinfodict}
